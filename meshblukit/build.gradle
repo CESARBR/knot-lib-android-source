@@ -63,7 +63,7 @@ install {
                 packaging 'aar'
 
                 // Add your description here
-                name 'A Sane JSON Object for Android'
+                name 'A SDK for using Meshblu'
                 url siteUrl
 
                 // Set your license
