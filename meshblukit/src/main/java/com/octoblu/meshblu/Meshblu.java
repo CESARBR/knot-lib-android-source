@@ -11,7 +11,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.github.nkzawa.emitter.Emitter;
-import com.octoblu.sanejsonobject;
+import com.octoblu.sanejsonobject.SaneJSONObject;
 
 import org.json.JSONObject;
 
@@ -94,7 +94,7 @@ public class Meshblu extends Emitter {
         RequestQueue queue = Volley.newRequestQueue(context);
         String url = String.format("%s/devices/%s/tokens", MESHBLU_URL, uuid);
 
-        com.octoblu.beaconblu.SaneJSONObject data = new com.octoblu.beaconblu.SaneJSONObject();
+        SaneJSONObject data = new SaneJSONObject();
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, data, new Response.Listener<JSONObject>() {
             @Override
