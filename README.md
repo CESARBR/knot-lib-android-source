@@ -36,14 +36,11 @@ allprojects {
 * [BeaconBlu](https://github.com/octoblu/BeaconBlu-Android)
 * [Gateblu](https://github.com/octoblu/gateblu-android)
 
-## Usage (Coming soon)
-
-In your application context.
+## Import
 
 ```java
 import com.octoblu.meshblukit.Meshblu;
 import com.octoblu.sanejsonobject.SaneJSONObject;
-
 ```
 
 ## API
