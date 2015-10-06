@@ -6,7 +6,7 @@
 
 ```gradle
 dependencies {
-    compile 'com.octoblu:meshblukit:1.0.0'
+    compile 'com.octoblu:meshblukit:1.0.1'
     compile 'com.octoblu:sanejsonobject:4.0.1'
 }
 ```

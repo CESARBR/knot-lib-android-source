@@ -167,9 +167,9 @@ public class Meshblu extends Emitter {
     public void updateDevice(String uuid, SaneJSONObject properties) {
         Log.d(TAG, "Updating device");
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = String.format("%s/devices/%s", MESHBLU_URL, uuid);
+        String url = String.format("%s/v2/devices/%s", MESHBLU_URL, uuid);
 
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, properties, new Response.Listener<JSONObject>() {
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.PATCH, url, properties, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) { emit(UPDATE_DEVICE); }
         }, new Response.ErrorListener() {
