@@ -57,7 +57,7 @@ public class Meshblu extends Emitter {
             case 80:
                 break;
             default:
-                portString = String.format(":%i", port);
+                portString = String.format(":%d", port);
                 break;
         }
         String server = meshbluConfig.getStringOrNull("server");
