@@ -34,10 +34,9 @@ public class HttpKNoT extends Emitter {
     public static final String GENERATED_TOKEN = "generated_token";
     public static final String ERROR = "error";
 
-    private String MESHBLU_URL = "https://org.cesar.knot.octoblu.com";
+    private String SERVER_URL = "https://org.cesar.knot.octoblu.com";
     private final Context context;
     public String uuid, token;
-
 
     public HttpKNoT(SaneJSONObject meshbluConfig, Context context){
         setCredentials(meshbluConfig);
@@ -64,7 +63,7 @@ public class HttpKNoT extends Emitter {
         if(server == null){
             server = "org.cesar.knot.octoblu.com";
         }
-        this.MESHBLU_URL = String.format("%s://%s%s", protocol, server, portString);
+        this.SERVER_URL = String.format("%s://%s%s", protocol, server, portString);
     }
 
     public Boolean isRegistered(){
@@ -74,7 +73,7 @@ public class HttpKNoT extends Emitter {
     public void register(SaneJSONObject properties) {
         Log.d(TAG, "Registering device");
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = String.format("%s/devices", MESHBLU_URL);
+        String url = String.format("%s/devices", SERVER_URL);
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, properties, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {
@@ -92,7 +91,7 @@ public class HttpKNoT extends Emitter {
 
     public void generateToken(String uuid) {
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = String.format("%s/devices/%s/tokens", MESHBLU_URL, uuid);
+        String url = String.format("%s/devices/%s/tokens", SERVER_URL, uuid);
 
         SaneJSONObject data = new SaneJSONObject();
 
@@ -119,7 +118,7 @@ public class HttpKNoT extends Emitter {
     public void whoami() {
         Log.d(TAG, "Getting gateblu device");
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = String.format("%s/v2/whoami", MESHBLU_URL);
+        String url = String.format("%s/v2/whoami", SERVER_URL);
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, new Response.Listener<JSONObject>() {
             @Override
@@ -143,7 +142,7 @@ public class HttpKNoT extends Emitter {
     public void message(SaneJSONObject message) {
         Log.d(TAG, "Sending Message");
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = String.format("%s/messages", MESHBLU_URL);
+        String url = String.format("%s/messages", SERVER_URL);
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, message, new Response.Listener<JSONObject>() {
             @Override
@@ -167,7 +166,7 @@ public class HttpKNoT extends Emitter {
     public void updateDevice(String uuid, SaneJSONObject properties) {
         Log.d(TAG, "Updating device");
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = String.format("%s/v2/devices/%s", MESHBLU_URL, uuid);
+        String url = String.format("%s/v2/devices/%s", SERVER_URL, uuid);
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.PATCH, url, properties, new Response.Listener<JSONObject>() {
             @Override
@@ -191,7 +190,7 @@ public class HttpKNoT extends Emitter {
     public void claimDevice(String uuid) {
         Log.d(TAG, "Updating device");
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = String.format("%s/claimdevice/%s", MESHBLU_URL, uuid);
+        String url = String.format("%s/claimdevice/%s", SERVER_URL, uuid);
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.PUT, url, new Response.Listener<JSONObject>() {
             @Override
@@ -214,7 +213,7 @@ public class HttpKNoT extends Emitter {
     public void sendData(String uuid, SaneJSONObject message) {
         Log.d(TAG, "Updating data");
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = String.format("%s/data/%s", MESHBLU_URL, uuid);
+        String url = String.format("%s/data/%s", SERVER_URL, uuid);
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, message, new Response.Listener<JSONObject>() {
             @Override
@@ -237,7 +236,7 @@ public class HttpKNoT extends Emitter {
     public void deleteDevice(String uuid) {
         Log.d(TAG, "Deleting device");
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = String.format("%s/devices/%s", MESHBLU_URL, uuid);
+        String url = String.format("%s/devices/%s", SERVER_URL, uuid);
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.DELETE, url, new Response.Listener<JSONObject>() {
             @Override
@@ -260,7 +259,7 @@ public class HttpKNoT extends Emitter {
     public void devices(SaneJSONObject options) {
         Log.d(TAG, "Getting devices");
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = String.format("%s/v2/devices", MESHBLU_URL);
+        String url = String.format("%s/v2/devices", SERVER_URL);
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, options, new Response.Listener<JSONObject>() {
             @Override
@@ -283,7 +282,7 @@ public class HttpKNoT extends Emitter {
     public void getData(String uuid, SaneJSONObject options) {
         Log.d(TAG, "Getting data");
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = String.format("%s/data/%s", MESHBLU_URL, uuid);
+        String url = String.format("%s/data/%s", SERVER_URL, uuid);
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, options, new Response.Listener<JSONObject>() {
             @Override
@@ -306,7 +305,7 @@ public class HttpKNoT extends Emitter {
     public void getPublicKey(String uuid) {
         Log.d(TAG, "Getting public key");
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = String.format("%s/devices/%s/publickey", MESHBLU_URL, uuid);
+        String url = String.format("%s/devices/%s/publickey", SERVER_URL, uuid);
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, new Response.Listener<JSONObject>() {
             @Override
@@ -329,7 +328,7 @@ public class HttpKNoT extends Emitter {
     public void resetToken(String uuid) {
         Log.d(TAG, "Resetting token");
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = String.format("%s/devices/%s/token", MESHBLU_URL, uuid);
+        String url = String.format("%s/devices/%s/token", SERVER_URL, uuid);
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, new Response.Listener<JSONObject>() {
             @Override
@@ -352,7 +351,7 @@ public class HttpKNoT extends Emitter {
     public void updateDangerously(String uuid, SaneJSONObject properties) {
         Log.d(TAG, "Dangerously updating device");
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = String.format("%s/v2/devices/%s", MESHBLU_URL, uuid);
+        String url = String.format("%s/v2/devices/%s", SERVER_URL, uuid);
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.PUT, url, properties, new Response.Listener<JSONObject>() {
             @Override
