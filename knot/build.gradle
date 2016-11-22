@@ -63,7 +63,7 @@ install {
                 packaging 'aar'
 
                 // Add your description here
-                name 'A SDK for using Meshblu'
+                name 'A SDK for using HttpKNoT'
                 url siteUrl
 
                 // Set your license

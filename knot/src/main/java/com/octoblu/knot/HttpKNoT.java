@@ -1,4 +1,4 @@
-package com.octoblu.meshblukit;
+package org.cesar.knot;
 
 import android.content.Context;
 import android.util.Log;
@@ -18,8 +18,8 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Meshblu extends Emitter {
-    private final String TAG = "Meshblu";
+public class HttpKNoT extends Emitter {
+    private final String TAG = "HttpKNoT";
     public static final String REGISTER = "register";
     public static final String WHOAMI = "whoami";
     public static final String MESSAGE = "message";
@@ -34,12 +34,12 @@ public class Meshblu extends Emitter {
     public static final String GENERATED_TOKEN = "generated_token";
     public static final String ERROR = "error";
 
-    private String MESHBLU_URL = "https://meshblu.octoblu.com";
+    private String MESHBLU_URL = "https://org.cesar.knot.octoblu.com";
     private final Context context;
     public String uuid, token;
 
 
-    public Meshblu(SaneJSONObject meshbluConfig, Context context){
+    public HttpKNoT(SaneJSONObject meshbluConfig, Context context){
         setCredentials(meshbluConfig);
         this.context = context;
     }
@@ -62,7 +62,7 @@ public class Meshblu extends Emitter {
         }
         String server = meshbluConfig.getStringOrNull("server");
         if(server == null){
-            server = "meshblu.octoblu.com";
+            server = "org.cesar.knot.octoblu.com";
         }
         this.MESHBLU_URL = String.format("%s://%s%s", protocol, server, portString);
     }
@@ -109,7 +109,7 @@ public class Meshblu extends Emitter {
         }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                return Meshblu.this.getHeaders();
+                return org.cesar.knot.HttpKNoT.this.getHeaders();
             }
         };;
 
@@ -133,7 +133,7 @@ public class Meshblu extends Emitter {
         }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                return Meshblu.this.getHeaders();
+                return org.cesar.knot.HttpKNoT.this.getHeaders();
             }
         };
 
@@ -157,7 +157,7 @@ public class Meshblu extends Emitter {
         }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                return Meshblu.this.getHeaders();
+                return org.cesar.knot.HttpKNoT.this.getHeaders();
             }
         };
 
@@ -181,7 +181,7 @@ public class Meshblu extends Emitter {
         }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                return Meshblu.this.getHeaders();
+                return org.cesar.knot.HttpKNoT.this.getHeaders();
             }
         };
 
@@ -205,7 +205,7 @@ public class Meshblu extends Emitter {
         }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                return Meshblu.this.getHeaders();
+                return org.cesar.knot.HttpKNoT.this.getHeaders();
             }
         };
 
@@ -228,7 +228,7 @@ public class Meshblu extends Emitter {
         }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                return Meshblu.this.getHeaders();
+                return org.cesar.knot.HttpKNoT.this.getHeaders();
             }
         };
 
@@ -251,7 +251,7 @@ public class Meshblu extends Emitter {
         }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                return Meshblu.this.getHeaders();
+                return org.cesar.knot.HttpKNoT.this.getHeaders();
             }
         };
 
@@ -274,7 +274,7 @@ public class Meshblu extends Emitter {
         }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                return Meshblu.this.getHeaders();
+                return org.cesar.knot.HttpKNoT.this.getHeaders();
             }
         };
 
@@ -297,7 +297,7 @@ public class Meshblu extends Emitter {
         }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                return Meshblu.this.getHeaders();
+                return org.cesar.knot.HttpKNoT.this.getHeaders();
             }
         };
 
@@ -320,7 +320,7 @@ public class Meshblu extends Emitter {
         }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                return Meshblu.this.getHeaders();
+                return org.cesar.knot.HttpKNoT.this.getHeaders();
             }
         };
 
@@ -343,7 +343,7 @@ public class Meshblu extends Emitter {
         }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                return Meshblu.this.getHeaders();
+                return org.cesar.knot.HttpKNoT.this.getHeaders();
             }
         };
 
@@ -366,7 +366,7 @@ public class Meshblu extends Emitter {
         }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                return Meshblu.this.getHeaders();
+                return org.cesar.knot.HttpKNoT.this.getHeaders();
             }
         };
 
@@ -375,8 +375,8 @@ public class Meshblu extends Emitter {
 
     private Map<String, String> getHeaders(){
         Map<String, String>  params = new HashMap<String, String>();
-        params.put("meshblu_auth_uuid", Meshblu.this.uuid);
-        params.put("meshblu_auth_token", Meshblu.this.token);
+        params.put("meshblu_auth_uuid", org.cesar.knot.HttpKNoT.this.uuid);
+        params.put("meshblu_auth_token", org.cesar.knot.HttpKNoT.this.token);
         return params;
     }
 }
