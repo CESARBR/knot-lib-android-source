@@ -28,6 +28,7 @@ public class ThingApi {
     private static final String DATA_PATH = "/data/";
     private static final String DEVICE_PATH = "/devices/";
     private static final String CLAIM_DEVICES_PATH = "/claimdevice/";
+    private static final String WHOAMI = "/v2/whoami/";
     private static final String MY_DEVICES_PATH = "/mydevices/";
     public static final String EMPTY_ARRAY = "[]";
     private static ThingApi sInstance;
@@ -246,6 +247,79 @@ public class ThingApi {
             }
         }.start();
     }
+
+    /**
+     * Get a all informationi about a device.
+     * @param owner the owner of the device.
+     * @param token the token for this owner
+     * @param clazz The class for this device. Meshblu works with any type of objects and
+     *              it is necessary deserialize the return to a valid object.
+     *              Note: The class parameter should be a extension of {@link AbstractThingDevice}
+     *
+     * @return an json element containing device informations
+     *
+     * @throws KnotException
+     */
+    public <T extends JsonElement> T whoAmi(String owner, String token, Class<T> clazz) throws KnotException {
+        final String endPoint = mEndPoint + WHOAMI;
+        Request request = generateBasicRequestBuild(owner, token, endPoint).build();
+
+        try {
+            Response response = mHttpClient.newCall(request).execute();
+            JsonElement jsonElement = new JsonParser().parse(response.body().string());
+            return mGson.fromJson(jsonElement.toString(), clazz);
+        } catch (Exception e) {
+            throw new KnotException(e);
+        }
+    }
+
+    /**
+     * Async version of {@link #getDevice(String, String, String, Class)}
+     * @param owner the owner of the device.
+     * @param token the token for this owner
+     * @param clazz The class for this device. Meshblu works with any type of objects and
+     *              it is necessary deserialize the return to a valid object.
+     *              Note: The class parameter should be a extension of {@link AbstractThingDevice}
+     *
+     * @param callback Callback for this method
+     *
+     * @return an object based on the class parameter
+     */
+
+    public <T extends JsonElement> void whoAmi(final String owner, final String token,
+                                                           final Class<T> clazz, final Callback<T> callback) {
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    T result = whoAmi(owner, token, clazz);
+                    dispatchSuccess(callback, result);
+                } catch (KnotException e) {
+                    dispatchError(callback, e);
+                }
+            }
+        }.start();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     /**
