@@ -12,8 +12,10 @@ public class ThingApi {
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final String HEADER_AUTH_UUID = "meshblu_auth_uuid";
     private static final String HEADER_AUTH_TOKEN = "meshblu_auth_token";
+    private static final String WHOAMI = "/v2/whoami/";
     private static final String DATA_PATH = "/data/";
     private static final String DEVICE_PATH = "/devices/";
+    private static final String DEVICE_PROPERTY_PATH_GATEWAY = "/gateway/";
     private static ThingApi sInstance;
     private final OkHttpClient mHttpClient;
     private String mEndPoint;
@@ -31,6 +33,18 @@ public class ThingApi {
             sInstance = new ThingApi();
         }
         return sInstance;
+    }
+
+    String getWhoAmI(String owner, String token) {
+        final String endPoint = mEndPoint + WHOAMI;
+        Request request = generateBasicRequestBuild(owner, token, endPoint).build();
+
+        try {
+            Response response = mHttpClient.newCall(request).execute();
+            return response.body().string();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     String createDevice() {
@@ -69,6 +83,18 @@ public class ThingApi {
             Response response = mHttpClient.newCall(request).execute();
             // TODO: 15/12/15 Please verify the response.body().string() value to check if the device was deleted
             return true;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    String getDeviceGateway(String owner, String token, String device) {
+        final String endPoint = mEndPoint + DEVICE_PATH + device + DEVICE_PROPERTY_PATH_GATEWAY;
+        Request request = generateBasicRequestBuild(owner, token, endPoint).build();
+
+        try {
+            Response response = mHttpClient.newCall(request).execute();
+            return response.body().string();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

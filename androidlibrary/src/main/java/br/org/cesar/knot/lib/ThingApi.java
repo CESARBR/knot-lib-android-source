@@ -27,6 +27,7 @@ public class ThingApi {
     private static final String HEADER_AUTH_TOKEN = "meshblu_auth_token";
     private static final String DATA_PATH = "/data/";
     private static final String DEVICE_PATH = "/devices/";
+    private static final String DEVICE_PROPERTY_PATH_GATEWAY = "/gateway/";
     private static final String CLAIM_DEVICES_PATH = "/claimdevice/";
     private static final String WHOAMI = "/v2/whoami/";
     private static final String MY_DEVICES_PATH = "/mydevices/";
@@ -249,7 +250,7 @@ public class ThingApi {
     }
 
     /**
-     * Get a all informationi about a device.
+     * Get all information regarding the device.
      * @param owner the owner of the device.
      * @param token the token for this owner
      * @param clazz The class for this device. Meshblu works with any type of objects and
@@ -260,7 +261,7 @@ public class ThingApi {
      *
      * @throws KnotException
      */
-    public <T extends JsonElement> T whoAmi(String owner, String token, Class<T> clazz) throws KnotException {
+    public <T extends JsonElement> T whoAmI(String owner, String token, Class<T> clazz) throws KnotException {
         final String endPoint = mEndPoint + WHOAMI;
         Request request = generateBasicRequestBuild(owner, token, endPoint).build();
 
@@ -274,7 +275,7 @@ public class ThingApi {
     }
 
     /**
-     * Async version of {@link #getDevice(String, String, String, Class)}
+     * Async version of {@link #whoAmI(String, String, Class)}
      * @param owner the owner of the device.
      * @param token the token for this owner
      * @param clazz The class for this device. Meshblu works with any type of objects and
@@ -286,13 +287,13 @@ public class ThingApi {
      * @return an object based on the class parameter
      */
 
-    public <T extends JsonElement> void whoAmi(final String owner, final String token,
+    public <T extends JsonElement> void whoAmI(final String owner, final String token,
                                                            final Class<T> clazz, final Callback<T> callback) {
         new Thread() {
             @Override
             public void run() {
                 try {
-                    T result = whoAmi(owner, token, clazz);
+                    T result = whoAmI(owner, token, clazz);
                     dispatchSuccess(callback, result);
                 } catch (KnotException e) {
                     dispatchError(callback, e);
@@ -352,6 +353,65 @@ public class ThingApi {
             public void run() {
                 try {
                     T result = getDevice(owner, token, device, clazz);
+                    dispatchSuccess(callback, result);
+                } catch (KnotException e) {
+                    dispatchError(callback, e);
+                }
+            }
+        }.start();
+    }
+
+    /**
+     * Get a specific device's gateway from Meshblu instance.
+     * @param owner the owner of the device.
+     * @param token the token for this owner
+     * @param device the device identifier (uuid)
+     * @param clazz The class for this device. Meshblu works with any type of objects and
+     *              it is necessary deserialize the return to a valid object.
+     *              Note: The class parameter should be a extension of {@link AbstractThingDevice}
+     *
+     * @return an object based on the class parameter
+     *
+     * @throws KnotException
+     */
+    public <T extends AbstractThingDevice> T getDeviceGateway(String owner, String token, String device, Class<T> clazz) throws KnotException {
+        final String endPoint = mEndPoint + DEVICE_PATH + device + DEVICE_PROPERTY_PATH_GATEWAY;
+        Request request = generateBasicRequestBuild(owner, token, endPoint).build();
+
+        try {
+            Response response = mHttpClient.newCall(request).execute();
+            JsonElement jsonElement = new JsonParser().parse(response.body().string());
+            JsonArray jsonArray = jsonElement.getAsJsonObject().getAsJsonArray("devices");
+            if (jsonArray.size() == 0) {
+                return null;
+            }
+            return mGson.fromJson(jsonArray.get(0).toString(), clazz);
+        } catch (Exception e) {
+            throw new KnotException(e);
+        }
+    }
+
+    /**
+     * Async version of {@link #getDeviceGateway(String, String, String, Class)}
+     * @param owner the owner of the device.
+     * @param token the token for this owner
+     * @param device the device identifier (uuid)
+     * @param clazz The class for this device. Meshblu works with any type of objects and
+     *              it is necessary deserialize the return to a valid object.
+     *              Note: The class parameter should be a extension of {@link AbstractThingDevice}
+     *
+     * @param callback Callback for this method
+     *
+     * @return an object based on the class parameter
+     */
+
+    public <T extends AbstractThingDevice> void getDeviceGateway(final String owner, final String token,
+                                                          final String device, final Class<T> clazz, final Callback<T> callback) {
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    T result = getDeviceGateway(owner, token, device, clazz);
                     dispatchSuccess(callback, result);
                 } catch (KnotException e) {
                     dispatchError(callback, e);
