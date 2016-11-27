@@ -1,1 +1,1 @@
-include ':knot'
+include ':app', ':javalibrary', ':androidlibrary'
