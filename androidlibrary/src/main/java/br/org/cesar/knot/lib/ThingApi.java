@@ -301,27 +301,6 @@ public class ThingApi {
         }.start();
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /**
      * Get a specific device from Meshblu instance.
      * @param owner the owner of the device.
