@@ -2,6 +2,7 @@ package br.org.cesar.knot.lib;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -18,6 +19,7 @@ import java.util.List;
 
 import br.org.cesar.knot.lib.model.AbstractThingData;
 import br.org.cesar.knot.lib.model.AbstractThingDevice;
+import br.org.cesar.knot.lib.model.AbstractThingMessage;
 
 public class ThingApi {
 
@@ -31,6 +33,7 @@ public class ThingApi {
     private static final String CLAIM_DEVICES_PATH = "/claimdevice/";
     private static final String WHOAMI = "/v2/whoami/";
     private static final String MY_DEVICES_PATH = "/mydevices/";
+    private static final String MESSAGE = "/message/";
     public static final String EMPTY_ARRAY = "[]";
     private static ThingApi sInstance;
     private final Handler mMainHandler;
@@ -582,6 +585,58 @@ public class ThingApi {
 
                     dispatchSuccess(callback, result);
                 } catch (KnotException e) {
+                    dispatchError(callback, e);
+                }
+            }
+        }.start();
+    }
+
+    //Message
+    /**
+     * Send a message in Meshblu instance
+     * @param message model sample to create a new message. Basically this message model
+     *               contains attributes that will be send into Meshblu.
+     *
+     * @return New message with meshblu content.
+     *
+     * @see AbstractThingMessage
+     *
+     * @throws KnotException
+     * */
+    public <T extends AbstractThingMessage> T sendMessage(String owner, String token, T message) throws KnotException {
+        final String endPoint = mEndPoint + MESSAGE;
+        String json = mGson.toJson(message);
+
+        RequestBody body = createRequestBodyWith(json);
+        Request request = generateBasicRequestBuild(owner, token, endPoint).post(body).build();
+
+        try {
+            Response response = mHttpClient.newCall(request).execute();
+            Log.i("DJACA", "Response body: "+response.body().toString());
+
+            return (T) mGson.fromJson(response.body().string(), message.getClass());
+        } catch (Exception e) {
+            throw new KnotException(e);
+        }
+    }
+
+    /**
+     * Send a message in Meshblu instance
+     * @param message model sample to create a new message. Basically this message model
+     *               contains attributes that will be send into Meshblu.
+     *
+     * @return New message with meshblu content.
+     *
+     * @see AbstractThingMessage
+     * */
+    public <T extends AbstractThingMessage> void sendMessage(final String owner, final String token, final T message, final Callback<T> callback) {
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    T result = sendMessage(owner, token, message);
+                    dispatchSuccess(callback, result);
+                } catch (final KnotException e) {
                     dispatchError(callback, e);
                 }
             }

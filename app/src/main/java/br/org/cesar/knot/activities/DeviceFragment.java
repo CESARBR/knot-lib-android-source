@@ -13,15 +13,17 @@ import java.util.Arrays;
 import java.util.List;
 
 import br.org.cesar.knot.R;
+import br.org.cesar.knot.data.BroadcastMessage;
 import br.org.cesar.knot.data.DroneDevice;
 import br.org.cesar.knot.data.WaterFountainData;
 import br.org.cesar.knot.lib.KnotException;
 import br.org.cesar.knot.lib.ThingApi;
 import br.org.cesar.knot.lib.ThingList;
+import br.org.cesar.knot.lib.model.AbstractThingMessage;
 
 public class DeviceFragment extends Fragment {
 
-    private static final String END_POINT = "http://192.168.25.46:3000";
+    private static final String END_POINT = "http://192.168.1.10:3000";
 
     private TextView mResultView;
     private View mProgressView;
@@ -34,7 +36,18 @@ public class DeviceFragment extends Fragment {
     }
 
     /**
-     * Returns a new instance of this fragment.
+     * Returns a new instance of this fragment.//Message
+     * String sendMessage(String owner, String token, String messageJson) {
+     * final String endPoint = mEndPoint + MESSAGE;
+     * Request request = generateBasicRequestBuild(owner, token, endPoint).build();
+     * <p>
+     * try {
+     * Response response = mHttpClient.newCall(request).execute();
+     * return response.body().string();
+     * } catch (Exception e) {
+     * throw new RuntimeException(e.getMessage());
+     * }
+     * }
      */
     public static DeviceFragment newInstance() {
         DeviceFragment fragment = new DeviceFragment();
@@ -57,7 +70,7 @@ public class DeviceFragment extends Fragment {
                 if (mId != null && mToken != null) {
                     mProgressView.animate().alpha(1);
                     mResultView.animate().alpha(0);
-                    mApi.getDeviceList("4ce4c86d-b178-44db-9739-f3f42214f018", "2e7bf179e6916efffd3f920bc204fd667816bb06", new ThingList<>(DroneDevice.class), new ThingApi.Callback<List<DroneDevice>>() {
+                    mApi.getDeviceList("baceda87-1c85-4c4e-91e6-9cfca1927841-0000", "244f116a7c43a127b7be71c4ee5f5ec7eb2982df", new ThingList<>(DroneDevice.class), new ThingApi.Callback<List<DroneDevice>>() {
                         @Override
                         public void onSuccess(List<DroneDevice> result) {
                             mProgressView.animate().alpha(0);
@@ -84,18 +97,21 @@ public class DeviceFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        final DroneDevice device = new DroneDevice();
-        mApi.createDevice(device, new ThingApi.Callback<DroneDevice>() {
-            @Override
-            public void onSuccess(DroneDevice result) {
-                mId = result.uuid;
-                mToken = result.token;
-                mProgressView.animate().alpha(0);
-                mResultView.setText(String.format("id: %s\ntoken: %s", result.uuid, result.token));
-                mResultView.animate().alpha(1);
+        final BroadcastMessage  message = new BroadcastMessage("off");
+//        final DroneDevice device = new DroneDevice();
+//        mApi.createDevice(device, new ThingApi.Callback<DroneDevice>() {
+//            @Override
+//            public void onSuccess(DroneDevice result) {
+//                mId = result.uuid;
+//                mToken = result.token;
+//                mProgressView.animate().alpha(0);
+//                mResultView.setText(String.format("id: %s\ntoken: %s", result.uuid, result.token));
+//                mResultView.animate().alpha(1);
+//
+//                device.owner = "cb24b61f-e83f-4396-9253-556a05312ab0-0000";
 
-                device.owner = "cb24b61f-e83f-4396-9253-556a05312ab0-0000";
 
+//                        mApi.claimDevice("cb24b61f-e83f-4396-9253-556a05312ab0-0000", "143f569c2c3253db9ff5c98d35a6ec6bad28925f", mId, new ThingApi.Callback<Boolean>() {
 
 //                try {
 //                    mApi.getDataList("cb24b61f-e83f-4396-9253-556a05312ab0-0000","143f569c2c3253db9ff5c98d35a6ec6bad28925f","cb24b61f-e83f-4396-9253-556a05312ab0-0000", new ThingList<>(AbstractThingDevice.class,
@@ -105,16 +121,10 @@ public class DeviceFragment extends Fragment {
 //                }
 
 
-
-
-
-
-
-
-            mApi.updateDevice(mId,mToken,mId,device, new ThingApi.Callback<DroneDevice>() {
-
-                    @Override
-                    public void onSuccess(DroneDevice result) {
+//            mApi.updateDevice(mId,mToken,mId,device, new ThingApi.Callback<DroneDevice>() {
+//
+//                    @Override
+//                    public void onSuccess(DroneDevice result) {
 //                        mApi.getDevice(mId,mToken,mId,DroneDevice.class, new ThingApi.Callback<DroneDevice>() {
 //
 //                            @Override
@@ -130,16 +140,16 @@ public class DeviceFragment extends Fragment {
 //                        });
 
 
-                        WaterFountainData teste = new WaterFountainData();
-                        teste.setFountainId(10);
-                        teste.setWeight(15.00);
-                            mApi.createData("cb24b61f-e83f-4396-9253-556a05312ab0-0000", "143f569c2c3253db9ff5c98d35a6ec6bad28925f", "cb24b61f-e83f-4396-9253-556a05312ab0-0000", teste, new teste());
-                            mApi.createData("cb24b61f-e83f-4396-9253-556a05312ab0-0000", "143f569c2c3253db9ff5c98d35a6ec6bad28925f", "cb24b61f-e83f-4396-9253-556a05312ab0-0000", teste, new teste());
-                            mApi.createData("cb24b61f-e83f-4396-9253-556a05312ab0-0000", "143f569c2c3253db9ff5c98d35a6ec6bad28925f", "cb24b61f-e83f-4396-9253-556a05312ab0-0000", teste, new teste());
-
-
-                        mApi.getDataList("cb24b61f-e83f-4396-9253-556a05312ab0-0000", "143f569c2c3253db9ff5c98d35a6ec6bad28925f", "cb24b61f-e83f-4396-9253-556a05312ab0-0000",
-                                        new ThingList<>(WaterFountainData.class), new Datacallback());
+//                        WaterFountainData teste = new WaterFountainData();
+//                        teste.setFountainId(10);
+//                        teste.setWeight(15.00);
+//                            mApi.createData("cb24b61f-e83f-4396-9253-556a05312ab0-0000", "143f569c2c3253db9ff5c98d35a6ec6bad28925f", "cb24b61f-e83f-4396-9253-556a05312ab0-0000", teste, new teste());
+//                            mApi.createData("cb24b61f-e83f-4396-9253-556a05312ab0-0000", "143f569c2c3253db9ff5c98d35a6ec6bad28925f", "cb24b61f-e83f-4396-9253-556a05312ab0-0000", teste, new teste());
+//                            mApi.createData("cb24b61f-e83f-4396-9253-556a05312ab0-0000", "143f569c2c3253db9ff5c98d35a6ec6bad28925f", "cb24b61f-e83f-4396-9253-556a05312ab0-0000", teste, new teste());
+//
+//
+//                        mApi.getDataList("cb24b61f-e83f-4396-9253-556a05312ab0-0000", "143f569c2c3253db9ff5c98d35a6ec6bad28925f", "cb24b61f-e83f-4396-9253-556a05312ab0-0000",
+//                                        new ThingList<>(WaterFountainData.class), new Datacallback());
 
 
 //                        mApi.claimDevice("cb24b61f-e83f-4396-9253-556a05312ab0-0000", "143f569c2c3253db9ff5c98d35a6ec6bad28925f", mId, new ThingApi.Callback<Boolean>() {
@@ -153,54 +163,43 @@ public class DeviceFragment extends Fragment {
 //
 //                            }
 //                        });
-                    }
-                    @Override
-                    public void onError(Exception error) {
-                        Log.d("emidio", "opsospospsopso");
+//                    }
+//                    @Override
+//                    public void onError(Exception error) {
+//                        Log.d("emidio", "opsospospsopso");
+//
+//                    }
+//                });
+//            }
+//
+//            //
+//            @Override
+//            public void onError(Exception error) {
+//                mProgressView.animate().alpha(0);
+//                Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_LONG).show();
+//            }
+//
+//
+//        });
 
-                    }
-                });
+        mApi.sendMessage("baceda87-1c85-4c4e-91e6-9cfca1927841-0000", "244f116a7c43a127b7be71c4ee5f5ec7eb2982df", message, new ThingApi.Callback<BroadcastMessage>() {
+            @Override
+            public void onSuccess(BroadcastMessage result) {
+                Log.i("DJACA", "result sucess: " + result.toString());
             }
 
             @Override
             public void onError(Exception error) {
-                mProgressView.animate().alpha(0);
-                Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_LONG).show();
+                Log.e("DJACA", "Error: "+error.getMessage(), error);
             }
         });
-
-    }
-class DeviceCallback implements ThingApi.Callback<List<DroneDevice>> {
-
-    @Override
-    public void onSuccess(List<DroneDevice> data) {
-        Log.d("emiddio", ""+data.size());
     }
 
-    @Override
-    public void onError(Exception e) {
-        Log.d("emiddio", "erro");
-
-    }
-}
-
-    class teste implements ThingApi.Callback<Boolean>{
-        @Override
-        public void onSuccess(Boolean result) {
-
-        }
+    class DeviceCallback implements ThingApi.Callback<List<DroneDevice>> {
 
         @Override
-        public void onError(Exception error) {
-
-        }
-    };
-
-    class Datacallback implements ThingApi.Callback<List<WaterFountainData>> {
-
-        @Override
-        public void onSuccess(List<WaterFountainData> data) {
-            Log.d("emiddio", ""+data.size());
+        public void onSuccess(List<DroneDevice> data) {
+            Log.d("emiddio", "" + data.size());
         }
 
         @Override
@@ -210,6 +209,33 @@ class DeviceCallback implements ThingApi.Callback<List<DroneDevice>> {
         }
     }
 
+    class teste implements ThingApi.Callback<Boolean> {
+        @Override
+        public void onSuccess(Boolean result) {
+
+        }
+
+        @Override
+        public void onError(Exception error) {
+
+        }
+    }
+
+    ;
+
+    class Datacallback implements ThingApi.Callback<List<WaterFountainData>> {
+
+        @Override
+        public void onSuccess(List<WaterFountainData> data) {
+            Log.d("emiddio", "" + data.size());
+        }
+
+        @Override
+        public void onError(Exception e) {
+            Log.d("emiddio", "erro");
+
+        }
+    }
 
 
 }

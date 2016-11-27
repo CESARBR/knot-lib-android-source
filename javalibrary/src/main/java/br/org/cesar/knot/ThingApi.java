@@ -15,6 +15,7 @@ public class ThingApi {
     private static final String WHOAMI = "/v2/whoami/";
     private static final String DATA_PATH = "/data/";
     private static final String DEVICE_PATH = "/devices/";
+    private static final String MESSAGE = "/message";
     private static final String DEVICE_PROPERTY_PATH_GATEWAY = "/gateway/";
     private static ThingApi sInstance;
     private final OkHttpClient mHttpClient;
@@ -129,6 +130,19 @@ public class ThingApi {
 
     String getDataList(String owner, String token, String device) {
         final String endPoint = mEndPoint + DATA_PATH + device;
+        Request request = generateBasicRequestBuild(owner, token, endPoint).build();
+
+        try {
+            Response response = mHttpClient.newCall(request).execute();
+            return response.body().string();
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    //Message
+    String sendMessage(String owner, String token, String messageJson) {
+        final String endPoint = mEndPoint + MESSAGE;
         Request request = generateBasicRequestBuild(owner, token, endPoint).build();
 
         try {
