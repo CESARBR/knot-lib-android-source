@@ -11,16 +11,23 @@ import br.org.cesar.knot.lib.model.AbstractThingMessage;
 public class BroadcastMessage extends AbstractThingMessage {
 
     @SerializedName("test")
-    public String test;
+    private String test;
 
-    public BroadcastMessage(String test) {
-        this.test = test;
+    public BroadcastMessage() {
     }
 
     @Override
     public String toString() {
         return "BroadcastMessage{" +
-                "test=" + message +
+                "test=" + test +
                 "} " + super.toString();
+    }
+
+    public String getTest() {
+        return test;
+    }
+
+    public void setTest(String test) {
+        this.test = test;
     }
 }

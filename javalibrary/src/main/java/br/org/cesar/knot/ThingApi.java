@@ -15,7 +15,7 @@ public class ThingApi {
     private static final String WHOAMI = "/v2/whoami/";
     private static final String DATA_PATH = "/data/";
     private static final String DEVICE_PATH = "/devices/";
-    private static final String MESSAGE = "/message";
+    private static final String MESSAGE = "/messages";
     private static final String DEVICE_PROPERTY_PATH_GATEWAY = "/gateway/";
     private static ThingApi sInstance;
     private final OkHttpClient mHttpClient;

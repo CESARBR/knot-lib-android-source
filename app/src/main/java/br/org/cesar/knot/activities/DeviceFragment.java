@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -97,7 +98,14 @@ public class DeviceFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        final BroadcastMessage  message = new BroadcastMessage("off");
+        final BroadcastMessage  message = new BroadcastMessage();
+        message.setTest("off");
+        message.setMessage("show message");
+        message.setTimestamp("12434325235");
+        ArrayList<String> devices = new ArrayList<>();
+        devices.add("0f486484-6d89-40e9-80f9-6cb4f63fb139-0000");
+        devices.add("c83e6d51-d270-454a-9a1d-bda5fcf2d8df-0000");
+        message.setDevices(devices);
 //        final DroneDevice device = new DroneDevice();
 //        mApi.createDevice(device, new ThingApi.Callback<DroneDevice>() {
 //            @Override
@@ -185,12 +193,12 @@ public class DeviceFragment extends Fragment {
         mApi.sendMessage("baceda87-1c85-4c4e-91e6-9cfca1927841-0000", "244f116a7c43a127b7be71c4ee5f5ec7eb2982df", message, new ThingApi.Callback<BroadcastMessage>() {
             @Override
             public void onSuccess(BroadcastMessage result) {
-                Log.i("DJACA", "result sucess: " + result.toString());
+                Log.i("KNOT_NOOW", "result sucess: " + result.toString());
             }
 
             @Override
             public void onError(Exception error) {
-                Log.e("DJACA", "Error: "+error.getMessage(), error);
+                Log.e("KN_NOOW", "Error: "+error.getMessage(), error);
             }
         });
     }

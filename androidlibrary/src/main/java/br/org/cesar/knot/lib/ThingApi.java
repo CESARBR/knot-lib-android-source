@@ -33,7 +33,7 @@ public class ThingApi {
     private static final String CLAIM_DEVICES_PATH = "/claimdevice/";
     private static final String WHOAMI = "/v2/whoami/";
     private static final String MY_DEVICES_PATH = "/mydevices/";
-    private static final String MESSAGE = "/message/";
+    private static final String MESSAGE = "/messages/";
     public static final String EMPTY_ARRAY = "[]";
     private static ThingApi sInstance;
     private final Handler mMainHandler;
@@ -612,9 +612,9 @@ public class ThingApi {
 
         try {
             Response response = mHttpClient.newCall(request).execute();
-            Log.i("DJACA", "Response body: "+response.body().toString());
+            JsonElement jsonElement = new JsonParser().parse(response.body().string());
 
-            return (T) mGson.fromJson(response.body().string(), message.getClass());
+            return (T) mGson.fromJson(jsonElement.toString(), message.getClass());
         } catch (Exception e) {
             throw new KnotException(e);
         }
