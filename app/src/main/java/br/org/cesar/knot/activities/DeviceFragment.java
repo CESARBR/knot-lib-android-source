@@ -194,6 +194,9 @@ public class DeviceFragment extends Fragment {
             @Override
             public void onSuccess(BroadcastMessage result) {
                 Log.i("KNOT_NOOW", "result sucess: " + result.toString());
+                mProgressView.animate().alpha(0);
+                mResultView.setText(result.toString());
+                mResultView.animate().alpha(1);
             }
 
             @Override
