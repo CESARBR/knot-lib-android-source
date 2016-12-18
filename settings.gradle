@@ -1,1 +1,1 @@
-include ':meshblukit'
+include ':app', ':javalibrary', ':androidlibrary'
