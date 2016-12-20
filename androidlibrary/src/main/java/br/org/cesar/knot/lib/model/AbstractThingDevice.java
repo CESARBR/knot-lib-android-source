@@ -16,6 +16,7 @@ public abstract class AbstractThingDevice {
 
     public String uuid;
     public String token;
+    public ThingConfiguration abstractThingConfiguration;
 
     public AbstractThingDevice() {
     }
@@ -25,6 +26,7 @@ public abstract class AbstractThingDevice {
         return "AbstractThingDevice{" +
                 "uuid='" + uuid + '\'' +
                 ", token='" + token + '\'' +
+                ", abstractThingConfiguration='" + abstractThingConfiguration.toString() + '\'' +
                 '}';
     }
 }
