@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2016, CESAR.
+ * All rights reserved.
+ *
+ * This software may be modified and distributed under the terms
+ * of the BSD license. See the LICENSE file for details.
+ *
+ */
 package br.org.cesar.knot.lib;
 
 import android.os.Handler;
@@ -21,6 +29,9 @@ import br.org.cesar.knot.lib.model.AbstractThingData;
 import br.org.cesar.knot.lib.model.AbstractThingDevice;
 import br.org.cesar.knot.lib.model.AbstractThingMessage;
 
+/**
+ * The main class that list all method available to use with KNOT
+ */
 public class ThingApi {
 
     private static final String EMPTY_JSON = "{}";
@@ -48,6 +59,11 @@ public class ThingApi {
         mEndPoint = endPoint;
     }
 
+    /**
+     * Return a instance of api
+     * @param endPoint
+     * @return
+     */
     public static ThingApi getInstance(String endPoint) {
         if (sInstance == null) {
             sInstance = new ThingApi(endPoint);
@@ -348,7 +364,6 @@ public class ThingApi {
      *
      * @return an object based on the class parameter
      */
-
     public <T extends AbstractThingDevice> void getDevice(final String owner, final String token,
                                                           final String device, final Class<T> clazz, final Callback<T> callback) {
         new Thread() {
@@ -407,7 +422,6 @@ public class ThingApi {
      *
      * @return an object based on the class parameter
      */
-
     public <T extends AbstractThingDevice> void getDeviceGateway(final String owner, final String token,
                                                           final String device, final Class<T> clazz, final Callback<T> callback) {
         new Thread() {
@@ -461,7 +475,6 @@ public class ThingApi {
      *
      * @throws KnotException
      */
-
     public <T extends AbstractThingDevice> void getDeviceList(final String owner, final String token, final ThingList<T> type, final Callback<List<T>> callback) {
         new Thread() {
             @Override
@@ -519,7 +532,6 @@ public class ThingApi {
      *
      * @throws KnotException
      */
-
     public <T extends AbstractThingData> void createData(final String owner, final String token,
                                                          final String device, final T data, final Callback<Boolean> callback) {
         new Thread() {
