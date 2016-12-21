@@ -13,7 +13,7 @@ import java.util.List;
 
 /**
 * Abstract class that all message must extends
-* This class has the common message elements on Knot
+* This class has the common message elements on KNOT
 */
 public class AbstractThingMessage {
 
