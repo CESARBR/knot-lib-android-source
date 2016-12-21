@@ -8,25 +8,28 @@
  */
 package br.org.cesar.knot.lib.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Abstract class that all other devices must extends
- * This class has the common device elements on Meshblu
+ * Abstract class that all other devices must extends This class has the common device elements on KNOT
  */
 public abstract class AbstractThingDevice {
 
     public String uuid;
     public String token;
-    public ThingConfiguration abstractThingConfiguration;
+    public List<ThingConfiguration> config;
 
     public AbstractThingDevice() {
+        config = new ArrayList<>();
     }
 
     @Override
     public String toString() {
         return "AbstractThingDevice{" +
-                "uuid='" + uuid + '\'' +
-                ", token='" + token + '\'' +
-                ", abstractThingConfiguration='" + abstractThingConfiguration.toString() + '\'' +
-                '}';
+            "uuid='" + uuid + '\'' +
+            ", token='" + token + '\'' +
+            ", config='" + config.toString() + '\'' +
+            '}';
     }
 }
