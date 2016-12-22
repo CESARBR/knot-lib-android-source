@@ -5,7 +5,8 @@
 ## Using Android library
 
 1. Add file created with command above in libs folder.
-      Important: if not see libs folder change perspective to Project in android studio.
+
+   *Important: if not see libs folder change perspective to Project in android studio.*
       
 2. Change allprojects attribute in project gradle to:
 
