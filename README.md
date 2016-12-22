@@ -1,6 +1,6 @@
 ## Generated .aar file of knot_lib
 
-1. In root directory project run command: ./gradlew clean aR to generated this file.
+1. In root directory project run command: **./gradlew clean aR** to generated this file.
 
 ## Using Android library
 
