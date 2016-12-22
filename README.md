@@ -9,7 +9,8 @@
    *Important: if not see libs folder change perspective to Project in android studio.*
       
 2. Change allprojects attribute in project gradle to:
-    
+>
+```
     allprojects {
         repositories {
               jcenter()
@@ -18,8 +19,12 @@
               }
           }
     }
-    
-3. In Module: app add the following command:
-  
-  compile(name:'knot-android-library-release', ext:'aar') 
+```
+>
 
+3. In Module: app add the following command:
+>
+```
+  compile(name:'knot-android-library-release', ext:'aar')
+```
+>
