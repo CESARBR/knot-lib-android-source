@@ -1,21 +1,21 @@
+## Generated .aar file of knot_lib
+
+1. In root directory project run command: ./gradlew clean aR to generated this file.
+
 ## Using Android library
 
-1. Add maven repo to gradle:
->
-```
-   allprojects {
-        repositories {
-            maven { 
-               url 'https://jitpack.io' 
-            }
-        }
-    }
-```
->
+1. Add file created with command above in libs folder.
+      Important: if not see libs folder change perspective to Project in android studio.
+      
+2. Change allprojects attribute in project gradle to:
 
-2. Add the dependency to app gradle:
->
 ```
-    compile 'com.github.knot-noow:knot-lib-android-source:1.0.0'
-```
->
+allprojects {
+    repositories {
+          jcenter()
+          flatDir {
+             dirs 'libs'
+          }
+      }
+}
+...
