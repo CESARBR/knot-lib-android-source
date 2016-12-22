@@ -1,58 +1,31 @@
-KNoT Android library
-===
+## Generated .aar file of knot_lib
 
-Please READ!!!
-===
-
-***
-
-## Slack channel
-https://cesar.slack.com/messages/knot-iot-android
-
-## Jira
-https://jira.cesar.org.br/browse/KNOT/component/11717
-
-***
-## Jenkins
-Coming soon
-
-***
-## Android Studio Settings
-
-https://drive.google.com/open?id=0B6p4dYFlCDYRR091MTNSSGcxbFk&authuser=0
-
-***
-
-## Dev Workflow
-
-1. Changes MUST have a JIRA ticket associated.
-2. Branching naming convetion:
-    * Features: feature/[JIRA-ISSUE] ex: feature/ISSUE-192
-    * Bugfix: bugfix/[JIRA-ISSUE] ex: bugfix/ISSUE-193
-3. Comment your commit:
-    * Template: [JIRA-ISSUE]: Description ex: [ISSUE-192]: Add a new call to api.
-4. Merge Requests are MANDATORY! No code SHALL PASS without MRs!!!
-
-***
+1. In root directory project run command: **./gradlew clean aR** to generated this file.
+   file is generated in a folder: root_project/androidlibrary/build/outputs/aar/
 
 ## Using Android library
 
-1. Add maven repo to gradle:
+1. Add file created with command above in libs folder.
+
+   *Important: if not seen libs folder, change AndroidStudio perspective to Project.
+      
+2. Change allprojects attribute in project gradle to:
 >
 ```
-   allprojects {
+    allprojects {
         repositories {
-            maven {
-                url "https://gitlab.cesar.org.br/cesar-iot/knot-android-lib-source/raw/mvn-repo"
-            }
-        }
+              jcenter()
+              flatDir {
+                 dirs 'libs'
+              }
+          }
     }
 ```
 >
 
-2. Add the dependency to app gradle:
+3. In Module: app add the following command:
 >
 ```
-    compile 'br.org.cesar:knot-library:1.0.0'
+  compile(name:'knot-android-library-release', ext:'aar')
 ```
 >
