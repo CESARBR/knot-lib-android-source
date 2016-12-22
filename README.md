@@ -5,8 +5,8 @@
 ```
    allprojects {
         repositories {
-            maven {
-                url "https://gitlab.cesar.org.br/cesar-iot/knot-android-lib-source/raw/mvn-repo"
+            maven { 
+               url 'https://jitpack.io' 
             }
         }
     }
@@ -16,6 +16,6 @@
 2. Add the dependency to app gradle:
 >
 ```
-    compile 'br.org.cesar:knot-library:1.0.0'
+    compile 'com.github.knot-noow:knot-lib-android-source:1.0.0'
 ```
 >
