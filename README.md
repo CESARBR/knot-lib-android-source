@@ -1,12 +1,13 @@
 ## Generated .aar file of knot_lib
 
 1. In root directory project run command: **./gradlew clean aR** to generated this file.
+   file is generated in a folder: root_project/androidlibrary/build/outputs/aar/
 
 ## Using Android library
 
 1. Add file created with command above in libs folder.
 
-   *Important: if not see libs folder change perspective to Project in android studio.*
+   *Important: if not seen libs folder, change AndroidStudio perspective to Project.
       
 2. Change allprojects attribute in project gradle to:
 >
