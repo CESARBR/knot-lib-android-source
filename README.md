@@ -1,3 +1,17 @@
+## Using Android library directly
+1. In module app file include instruction
+>
+```
+   dependencies {
+       ...
+       compile 'com.github.cesarbr:knot-lib-android-sourc:KNOT-v01.00'
+       ...
+   }
+```
+>
+
+                                    ##OR
+
 ## Generated .aar file of knot_lib
 
 1. In root directory project run command: **./gradlew clean aR** to generated this file.
