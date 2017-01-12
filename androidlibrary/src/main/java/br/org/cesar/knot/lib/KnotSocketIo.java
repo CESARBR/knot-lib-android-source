@@ -1,17 +1,21 @@
 package br.org.cesar.knot.lib;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Ack;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
+import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
-import java.util.Objects;
+
+import br.org.cesar.knot.lib.model.AbstractThingDevice;
 
 /**
  * Created by usuario on 09/01/17.
@@ -19,9 +23,10 @@ import java.util.Objects;
 
 public class KnotSocketIo {
 
+    private final Gson mGson = new Gson();
     private Socket mSocket;
     private String mEndPoint;
-
+    private Handler mMainHandler;
 
     public KnotSocketIo(String endPoint) throws URISyntaxException {
 
@@ -30,6 +35,7 @@ public class KnotSocketIo {
             mSocket = IO.socket(mEndPoint);
             mSocket.on("ready", onReady);
             mSocket.on("notReady", onNotReady);
+            mMainHandler = new Handler(Looper.getMainLooper());
             mSocket.connect();
         } else {
             //TODO - throws exception
@@ -66,18 +72,23 @@ public class KnotSocketIo {
 
     //Needs to be tested put only to remember us
     //https://meshblu-socketio.readme.io/docs/devices
-    public void listDevices(JSONObject query) {
-        if(mSocket.connected()) {
-            mSocket.emit("register", query, new Ack() {
+    public <T extends AbstractThingDevice> void getDeviceList(JSONObject query, final ThingApi.Callback<T>
+        callback)
+        throws KnotException {
+        if (mSocket.connected()) {
+            mSocket.emit("devices", query, new Ack() {
                 @Override
                 public void call(Object... args) {
-                    Log.d("emidio", "teste");
+                    try {
+                        T result = (T) mGson.fromJson(args[0].toString(), AbstractThingDevice.class);
+                        dispatchSuccess(callback, result);
+                    } catch (Exception e) {
+                        dispatchError(callback, e);
+                    }
                 }
             });
         }
     }
-
-
 
     //https://meshblu-socketio.readme.io/docs/unregister
     public void deleteDevice() {
@@ -143,7 +154,6 @@ public class KnotSocketIo {
 
     }
 
-
     public void getDevice() {
 
         if (mSocket.connected()) {
@@ -151,7 +161,6 @@ public class KnotSocketIo {
         }
 
     }
-
 
     private Emitter.Listener onReady = new Emitter.Listener() {
 
@@ -170,7 +179,6 @@ public class KnotSocketIo {
         }
     };
 
-
     //temp
     public JSONObject getDeviceTemp() {
         JSONObject deviceObject = new JSONObject();
@@ -184,5 +192,22 @@ public class KnotSocketIo {
         return deviceObject;
     }
 
+    private <T> void dispatchSuccess(final ThingApi.Callback<T> callback, final T result) {
+        mMainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onSuccess(result);
+            }
+        });
+    }
+
+    private <T> void dispatchError(final ThingApi.Callback<T> callback, final Exception error) {
+        mMainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError(error);
+            }
+        });
+    }
 
 }
