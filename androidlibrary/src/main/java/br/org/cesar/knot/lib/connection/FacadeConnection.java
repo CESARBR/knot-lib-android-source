@@ -164,7 +164,7 @@ public class FacadeConnection {
      * @param callback Callback for this method
      * @see AbstractThingDevice
      */
-    public <T extends AbstractThingDevice> void httpCreateDevice(final T device, final ThingApi.Callback<T> callback) throws IllegalStateException {
+    public <T extends AbstractThingDevice> void httpCreateDevice(final T device, final Event<T> callback) throws IllegalStateException {
         if (thingApi == null) {
             throw new IllegalStateException("was you call the setupHttp?");
         } else {
@@ -201,7 +201,7 @@ public class FacadeConnection {
      * @param device   the identifier of device (uuid)
      * @param callback Callback for this method
      */
-    public void httpClaimDevice(final String owner, final String token, final String device, final ThingApi.Callback<Boolean> callback) throws IllegalStateException {
+    public void httpClaimDevice(final String owner, final String token, final String device, final Event<Boolean> callback) throws IllegalStateException {
         if (thingApi == null) {
             throw new IllegalStateException("was you call the setupHttp?");
         } else {
@@ -235,7 +235,7 @@ public class FacadeConnection {
      * @param callback Callback for this method
      */
     public <T extends AbstractThingDevice> void httpUpdateDevice(final String owner, final String token,
-                                                                 final String id, final T device, final ThingApi.Callback<T> callback) throws IllegalStateException {
+                                                                 final String id, final T device, final Event<T> callback) throws IllegalStateException {
 
         if (thingApi == null) {
             throw new IllegalStateException("was you call the setupHttp?");
@@ -271,7 +271,7 @@ public class FacadeConnection {
      * @param device   the device identifier (uuid)
      * @param callback Callback for this method
      */
-    public void httpDeleteDevice(final String owner, final String token, final String device, final ThingApi.Callback<Boolean> callback) throws IllegalStateException {
+    public void httpDeleteDevice(final String owner, final String token, final String device, final Event<Boolean> callback) throws IllegalStateException {
         if (thingApi == null) {
             throw new IllegalStateException("was you call the setupHttp?");
         } else {
@@ -311,7 +311,7 @@ public class FacadeConnection {
      */
 
     public <T extends JsonElement> void httpWhoAmI(final String owner, final String token,
-                                               final Class<T> clazz, final ThingApi.Callback<T> callback) throws IllegalStateException {
+                                               final Class<T> clazz, final Event<T> callback) throws IllegalStateException {
         if (thingApi == null) {
             throw new IllegalStateException("was you call the setupHttp?");
         } else {
@@ -340,7 +340,7 @@ public class FacadeConnection {
     }
 
     /**
-     * Async version of {@link #getDevice(String, String, String, Class)}
+     * Async version of {@link #httpGetDevice(String, String, String, Class)}
      *
      * @param owner    the owner of the device.
      * @param token    the token for this owner
@@ -352,7 +352,7 @@ public class FacadeConnection {
      * @return an object based on the class parameter
      */
     public <T extends AbstractThingDevice> void httpGetDevice(final String owner, final String token,
-                                                          final String device, final Class<T> clazz, final ThingApi.Callback<T> callback) throws IllegalStateException {
+                                                          final String device, final Class<T> clazz, final Event<T> callback) throws IllegalStateException {
         if (thingApi == null) {
             throw new IllegalStateException("was you call the setupHttp?");
         } else {
@@ -381,7 +381,7 @@ public class FacadeConnection {
     }
 
     /**
-     * Async version of {@link #getDeviceGateway(String, String, String, Class)}
+     * Async version of {@link #httpGetDeviceGateway(String, String, String, Class)}
      *
      * @param owner    the owner of the device.
      * @param token    the token for this owner
@@ -393,7 +393,7 @@ public class FacadeConnection {
      * @return an object based on the class parameter
      */
     public <T extends AbstractThingDevice> void httpGetDeviceGateway(final String owner, final String token,
-                                                                 final String device, final Class<T> clazz, final ThingApi.Callback<T> callback) throws IllegalStateException {
+                                                                 final String device, final Class<T> clazz, final Event<T> callback) throws IllegalStateException {
         if (thingApi == null) {
             throw new IllegalStateException("was you call the setupHttp?");
         } else {
@@ -419,7 +419,7 @@ public class FacadeConnection {
     }
 
     /**
-     * Async version of {@link #getDeviceList(String, String, ThingList)}
+     * Async version of {@link #httpGetDeviceList(String, String, ThingList)}
      *
      * @param owner    the owner of the device.
      * @param token    the token for this owner.
@@ -428,7 +428,7 @@ public class FacadeConnection {
      * @return a List with all devices those belongs to the owner
      * @throws KnotException
      */
-    public <T extends AbstractThingDevice> void httpGetDeviceList(final String owner, final String token, final ThingList<T> type, final ThingApi.Callback<List<T>> callback) throws IllegalStateException {
+    public <T extends AbstractThingDevice> void httpGetDeviceList(final String owner, final String token, final ThingList<T> type, final Event<List<T>> callback) throws IllegalStateException {
         if (thingApi == null) {
             throw new IllegalStateException("was you call the setupHttp?");
         } else {
@@ -456,7 +456,7 @@ public class FacadeConnection {
     }
 
     /**
-     * Async version of {@link #createData(String, String, String, AbstractThingData)}
+     * Async version of {@link #httpCreateData(String, String, String, AbstractThingData)}
      *
      * @param owner    the owner of the device.
      * @param token    the token for this owner.
@@ -467,7 +467,7 @@ public class FacadeConnection {
      * @throws KnotException
      */
     public <T extends AbstractThingData> void httpCreateData(final String owner, final String token,
-                                                         final String device, final T data, final ThingApi.Callback<Boolean> callback) throws IllegalStateException {
+                                                         final String device, final T data, final  Event<Boolean> callback) throws IllegalStateException {
         if (thingApi == null) {
             throw new IllegalStateException("was you call the setupHttp?");
         } else {
@@ -501,7 +501,7 @@ public class FacadeConnection {
      * @param callback Callback for this method
      * @return a List with data of the device
      */
-    public <T extends AbstractThingData> void httpGetDataList(final String owner, final String token, final String device, final ThingList<T> type, final ThingApi.Callback<List<T>> callback) throws IllegalStateException {
+    public <T extends AbstractThingData> void httpGetDataList(final String owner, final String token, final String device, final ThingList<T> type, final Event<List<T>> callback) throws IllegalStateException {
         if (thingApi == null) {
             throw new IllegalStateException("was you call the setupHttp?");
         } else {
@@ -534,7 +534,7 @@ public class FacadeConnection {
      * @return New message with meshblu content.
      * @see AbstractThingMessage
      */
-    public <T extends AbstractThingMessage> void httpSendMessage(final String owner, final String token, final T message, final ThingApi.Callback<T> callback) throws IllegalStateException {
+    public <T extends AbstractThingMessage> void httpSendMessage(final String owner, final String token, final T message, final Event<T> callback) throws IllegalStateException {
         if (thingApi == null) {
             throw new IllegalStateException("was you call the setupHttp?");
         } else {

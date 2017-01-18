@@ -11,27 +11,36 @@
 package br.org.cesar.knot.lib.connection;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Ack;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
+import java.util.List;
 
 import br.org.cesar.knot.lib.event.Event;
+import br.org.cesar.knot.lib.exception.InvalidParametersException;
+import br.org.cesar.knot.lib.exception.KnotException;
 import br.org.cesar.knot.lib.exception.SocketNotConnected;
+import br.org.cesar.knot.lib.model.AbstractThingData;
 import br.org.cesar.knot.lib.model.AbstractThingDevice;
+import br.org.cesar.knot.lib.model.AbstractThingMessage;
+import br.org.cesar.knot.lib.model.ThingList;
 import br.org.cesar.knot.lib.util.LogLib;
 
 
 /**
- * The type Knot socket io.
+ * The type Knot mSocket io.
  */
 final class KnotSocketIo {
 
@@ -41,33 +50,199 @@ final class KnotSocketIo {
     private static String EVENT_CREATE_DEVICE = "device";
 
     /**
+     * Event used to delete a device on meshblu
+     */
+    private static String EVENT_UNREGISTER_DEVICE = "unregister";
+
+    /**
+     * Event used to register a socket on meshblu
+     */
+    private static String EVENT_IDENTITY_DEVICE = "identity";
+
+    /**
+     * Event used to get information about the device
+     */
+    private static String EVENT_WHOAMI = "whoami";
+
+    /**
+     * Event used to update information of the device
+     */
+    private static String EVENT_UPDATE_DEVICE = "update";
+
+    /**
+     * Event used to insert a new data on server
+     */
+    private static String EVENT_INSERT_DATA = "data";
+
+    /**
+     * Event used to get all datas of specific device
+     */
+    private static String EVENT_GET_DATA = "getdata";
+
+    /**
+     * Event used to get all devices of specific device
+     */
+    private static String EVENT_GET_DEVICES = "devices";
+
+    /**
+     * Event used to get a specific device
+     */
+    private static String EVENT_GET_DEVICE = "device";
+
+    /**
+     * Event used to claim a device
+     */
+    private static String EVENT_CLAIM_DEVICE = "claimdevice";
+
+    /**
+     * Event used to register method to receive connect information
+     */
+    private static String EVENT_READY = "ready";
+
+    /**
+     * Event used to register method to receive connect information
+     */
+    private static String EVENT_NOT_READY = "notReady";
+
+    /**
+     * Event used to register method to receive messages
+     */
+    private static String EVENT_MESSAGE = "message";
+
+    /**
+     * Event used to register method to receive device information
+     */
+    private static String EVENT_CONFIG = "config";
+
+    /**
      * First position of result of an event emitted
      */
     private static int FIRST_EVENT_RECEIVED = 0;
 
-    private Socket socket;
-    private Gson gson;
+    /**
+     * Tag that identify an error of server
+     */
+    private static String ERROR = "error";
+
+    /**
+     * Tag that identify success of server
+     */
+    private static String FROMUUID = "fromUuid";
+
+    /**
+     * Tag that identify uuid of the device
+     */
+    private static String UUID = "uuid";
+
+    /**
+     * Tag that identify the token of the device
+     */
+    private static String TOKEN = "token";
+
+    /**
+     * Tag that represents the data of the device
+     */
+    private static String DATA = "data";
+
+    /**
+     * Tag that represents the devices of the json result
+     */
+    private static String DEVICES = "devices";
+
+    /**
+     * Tag that represents the devices of the json result
+     */
+    private static String DEVICE = "device";
+
+    /**
+     * Tag used to make the device parser
+     */
+    private static String FROM = "from";
+
+    /**
+     * The socket that make the communication between client and server
+     */
+    private Socket mSocket;
+
+    /**
+     * Empty json
+     */
+    private static final String EMPTY_JSON = "[]";
+
+    /**
+     * Flag that show if the socket was registered
+     */
+    private boolean mDeviceRegistered;
+
+    /**
+     * Manipulate json objects
+     */
+    private Gson mGson;
+
+    /**
+     * Callback used to transmit all messages to client
+     */
+    private  Event<AbstractThingMessage> mOnMessageEventCallback;
+
+    /**
+     * Callback used to transmit all modifications to client
+     */
+    private  Event<AbstractThingDevice> mOnConfigEventCallback;
+
+    /**
+     * This event is called when the server response if the device was registered
+     */
     private Emitter.Listener onReady = new Emitter.Listener() {
 
         @Override
         public void call(Object... args) {
-            Log.d("emidio", "teste");
-            updateDevice(null);
-        }
-    };
-    private Emitter.Listener onNotReady = new Emitter.Listener() {
-
-        @Override
-        public void call(Object... args) {
-            Log.d("emidio", "teste");
+            mDeviceRegistered = true;
         }
     };
 
     /**
-     * Instantiates a new Knot socket io.
+     * This event is called when the server response if the device wasn't registered
+     */
+    private Emitter.Listener onNotReady = new Emitter.Listener() {
+
+        @Override
+        public void call(Object... args) {
+            mDeviceRegistered = false;
+        }
+    };
+
+    /**
+     * This event is called when the device receive a neu message
+     */
+    private Emitter.Listener onMessageReceived = new Emitter.Listener() {
+
+        @Override
+        public void call(Object... args) {
+            if(mOnMessageEventCallback !=null && args!=null){
+                //We needs more information about this function
+            }
+
+        }
+    };
+
+    /**
+     * This event is called when the device is updated
+     */
+    private Emitter.Listener onConfigDevice = new Emitter.Listener() {
+
+        @Override
+        public void call(Object... args) {
+            if(mOnConfigEventCallback !=null && args!=null){
+                //We needs more information about this function
+            }
+        }
+    };
+
+    /**
+     * Instantiates a new Knot mSocket io.
      *
      * @param endPoint the end point
-     * @throws SocketNotConnected the socket not connected
+     * @throws SocketNotConnected the mSocket not connected
      */
     public KnotSocketIo(@NonNull String endPoint) throws SocketNotConnected {
         this();
@@ -75,66 +250,77 @@ final class KnotSocketIo {
     }
 
     /**
-     * You must call the {@link #connect(String)} to open a valid socket
+     * You must call the {@link #connect(String)} to open a valid mSocket
      */
     public KnotSocketIo() {
-        this.gson = new Gson();
+        this.mGson = new Gson();
     }
 
     /**
-     * Open a new socket with the meshblus
+     * Open a new mSocket with the meshblus
      *
      * @param endPoint endpoint of gateway
-     * @throws SocketNotConnected if its not possible to open a socket
+     * @throws SocketNotConnected if its not possible to open a mSocket
      */
     public void connect(@NonNull String endPoint) throws SocketNotConnected {
         try {
-            socket = IO.socket(endPoint);
-            socket.connect();
+            mSocket = IO.socket(endPoint);
+
+            mSocket.on(EVENT_READY, onReady);
+            mSocket.on(EVENT_NOT_READY, onNotReady);
+            mSocket.on(EVENT_MESSAGE,onMessageReceived);
+            mSocket.on(EVENT_CONFIG,onConfigDevice);
+
+            mSocket.connect();
         } catch (URISyntaxException e) {
-            LogLib.printE("Its not possible to connect on socket", e);
+            LogLib.printE("Its not possible to connect on mSocket", e);
         }
     }
 
     /**
-     * Disconnect and invalidate the current socket. You must call {@link #connect(String)} to open a valid socket
+     * Disconnect and invalidate the current mSocket. You must call {@link #connect(String)} to open a valid mSocket
      * before to do any action on meshblu
      */
     public void disconnect() {
         if (isSocketConnected()) {
-            socket.disconnect();
-            socket = null;
+            mSocket.disconnect();
+            mSocket = null;
         }
     }
 
-    /**
-     * Is socket connected boolean.
-     *
-     * @return the boolean
-     */
-    public boolean isSocketConnected() {
-        return socket != null && socket.connected();
-    }
 
     /**
-     * Create new device on meshblu. Check the reference on @see <a href="https://meshblu-socketio.readme.io/docs/register</a>
+     * Generate a new Device in Meshblu instance
+     *
+     * @param device         model sample to create a new one. Basically this device model
+     *                       contains attributes that will be saved into Meshblu.
+     *                       Please note that uuid and token will always
+     *                       be generated by Meshblu (please see AbstractThingDevice).
+     *                       It is important set the custom attribute for your classes
+     * @param callbackResult Callback for this method
+     * @return New device with meshblu token and uuid values
+     * @throws KnotException
+     * @throws SocketNotConnected
+     * @see AbstractThingDevice
+     * <p>
+     * Check the reference on @see <a href="https://meshblu-socketio.readme.io/docs/register</a>
      */
     public <T extends AbstractThingDevice> void createNewDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected {
-        if (isSocketConnected()) {
-            socket.emit(EVENT_CREATE_DEVICE, device, new Ack() {
+        if (isSocketConnected() && device != null) {
+            mSocket.emit(EVENT_CREATE_DEVICE, device, new Ack() {
                 @Override
                 public void call(Object... args) {
                     // check if it's necessary to return the result of event
                     if (callbackResult != null) {
-                        Object firstPostition;
-                        if ((firstPostition = args[FIRST_EVENT_RECEIVED]) != null) {
-                            final String json = (String) firstPostition;
-                            final T result = (T) gson.fromJson(json, device.getClass());
+                        Object firstPosition;
+                        if ((firstPosition = args[FIRST_EVENT_RECEIVED]) != null) {
+                            final String json = (String) firstPosition;
+                            final T result = (T) mGson.fromJson(json, device.getClass());
 
                             //call the callback
                             callbackResult.onEventFinish(result);
                         } else {
-                            callbackResult.onEventError();
+                            callbackResult.onEventError(new KnotException());
                         }
                     }
                 }
@@ -145,133 +331,460 @@ final class KnotSocketIo {
     }
 
     /**
-     * List devices.
+     * Turns the device belongs to someone. When a device is created in
+     * Meshblu, it is an orphan device. In other words, everyone can made any
+     * changes on this device. After claim a device, only the
+     * owner can delete or update it.
+     * Note: In Meshblu, the owner for one device IS another device.
      *
-     * @param query the query
+     * @param device         the identifier of device (uuid)
+     * @param callbackResult Callback for this method
+     * @throws KnotException
+     * @throws SocketNotConnected
+     * <p>
+     * Check the reference on @see <a https://meshblu-socketio.readme.io/docs/unregister</a>
      */
-//Needs to be tested put only to remember us
-    //https://meshblu-socketio.readme.io/docs/devices
-    public void listDevices(JSONObject query) {
-        if (socket.connected()) {
-            socket.emit("register", query, new Ack() {
-                @Override
-                public void call(Object... args) {
-                    Log.d("emidio", "teste");
-                }
-            });
-        }
-    }
+    public <T extends AbstractThingDevice> void deleteDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected {
 
-    /**
-     * Delete device.
-     */
-//https://meshblu-socketio.readme.io/docs/unregister
-    public void deleteDevice() {
-        JSONObject device = getDeviceTemp();
+        if (isSocketRegistered() && isSocketConnected() && device != null) {
+            JSONObject deviceToDelete = getNecessaryDeviceInformation(device);
 
-        if (device != null) {
-            socket.emit("unregister", device, new Ack() {
-                @Override
-                public void call(Object... args) {
-                    Log.d("emidio", "teste");
-                }
-            });
-        }
-    }
-
-    /**
-     * Authenticate device.
-     *
-     * @param device the device
-     */
-//https://meshblu-socketio.readme.io/docs/identity
-    public void authenticateDevice(Object device) {
-        JSONObject deviceObject = getDeviceTemp();
-
-        if (deviceObject != null) {
-            socket.emit("identity", deviceObject);
-        }
-    }
-
-    /**
-     * Who am i.
-     *
-     * @param device the device
-     */
-//https://meshblu-socketio.readme.io/docs/whoami
-    public void whoAmI(Object device) {
-        JSONObject deviObject = getDeviceTemp();
-
-        if (deviObject != null) {
-            socket.emit("whoami", deviObject, new Ack() {
-                @Override
-                public void call(Object... args) {
-                    Log.d("emidio", "teste");
-                }
-            });
-        }
-    }
-
-    /**
-     * Update device.
-     *
-     * @param device the device
-     */
-//https://meshblu-socketio.readme.io/docs/update
-    public void updateDevice(Object device) {
-
-        if (socket.connected()) {
-            JSONObject deviceObject = getDeviceTemp();
-            try {
-                deviceObject.put("team", "sport");
-                deviceObject.put("name", "Fulano de tal");
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            if (deviceObject != null) {
-
-                socket.emit("update", deviceObject, new Ack() {
+            if (deviceToDelete != null) {
+                mSocket.emit(EVENT_UNREGISTER_DEVICE, deviceToDelete, new Ack() {
                     @Override
                     public void call(Object... args) {
-                        Log.d("emidio", "teste");
+                        //Get First element of the array
+                        if (args.length > 0 && args[FIRST_EVENT_RECEIVED] != null) {
+                            JsonElement jsonElement = new JsonParser().parse(args[FIRST_EVENT_RECEIVED].toString());
+                            JsonObject jsonObject = jsonElement.getAsJsonObject();
+                            if (jsonObject.get(ERROR) != null) {
+                                callbackResult.onEventError(new KnotException(jsonObject.get(ERROR).toString()));
+                            } else if (jsonObject.get(FROMUUID) != null) {
+                                callbackResult.onEventFinish(device);
+                            } else {
+                                callbackResult.onEventError(new KnotException("Unknown error"));
+                            }
+
+                        } else {
+                            callbackResult.onEventError(new KnotException("Failed to delete file"));
+                        }
+
                     }
                 });
             }
-
+        } else {
+            throw new SocketNotConnected("Socket not ready or connected");
         }
-
     }
 
-    /**
-     * Gets device.
-     */
-    public void getDevice() {
-
-        if (socket.connected()) {
-
-        }
-
-    }
 
     /**
-     * Gets device temp.
+     * The API Needs to call this method to authenticate a device with the socket communication.
      *
-     * @return the device temp
+     * @param device         the device
+     * @param callbackResult Callback for this method
+     * @throws KnotException
+     * @throws SocketNotConnected
+     * @throws InvalidParametersException Check the reference on
+     * <p>
+     * @see <a https://meshblu-socketio.readme.io/docs/identity</a>
      */
-//temp
-    public JSONObject getDeviceTemp() {
-        JSONObject deviceObject = new JSONObject();
+    public <T extends AbstractThingDevice> void authenticateDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected, InvalidParametersException {
+
+        if (isSocketConnected()) {
+            if (device != null && callbackResult != null) {
+                String json = mGson.toJson(device);
+
+                JSONObject deviceToAutheticate = null;
+                try {
+                    deviceToAutheticate = new JSONObject(json);
+                } catch (JSONException e) {
+                    callbackResult.onEventError(new KnotException(e.getMessage()));
+                }
+
+                mSocket.emit(EVENT_IDENTITY_DEVICE, deviceToAutheticate);
+            } else {
+                throw new InvalidParametersException("Invalid parameters");
+            }
+
+        } else {
+            throw new SocketNotConnected("Socket not ready or connected");
+        }
+
+    }
+
+    /**
+     * Get all information regarding the device.
+     *
+     * @param callbackResult Callback for this method
+     * @param device         the device
+     * @throws KnotException
+     * @throws SocketNotConnected
+     * @throws InvalidParametersException Check the reference on
+     *  <p>
+     * @see <a https://meshblu-socketio.readme.io/docs/whoami </a>
+     */
+    //
+    public <T extends AbstractThingDevice> void whoAmI(final T device, final Event<T> callbackResult) throws JSONException, SocketNotConnected, InvalidParametersException {
+
+        if (isSocketConnected() && isSocketRegistered()) {
+            if (device != null && callbackResult != null) {
+                JSONObject whoAmi = getNecessaryDeviceInformation(device);
+
+                if (whoAmi != null) {
+                    mSocket.emit(EVENT_WHOAMI, whoAmi, new Ack() {
+                        @Override
+                        public void call(Object... args) {
+                            try {
+                                T result = (T) mGson.fromJson(args[FIRST_EVENT_RECEIVED].toString(), device.getClass());
+                                callbackResult.onEventFinish(result);
+                            } catch (Exception e) {
+                                callbackResult.onEventError(new KnotException());
+                            }
+                        }
+                    });
+                }
+            } else {
+                throw new InvalidParametersException("Invalid parameters");
+            }
+        } else {
+            throw new SocketNotConnected("Socket not ready or connected");
+        }
+    }
+
+    /**
+     * Update an existent device
+     *
+     * @param device         the identifier of device (uuid)
+     * @param callbackResult Callback for this method
+     * @throws KnotException
+     * @throws SocketNotConnected
+     * @throws InvalidParametersException
+     *  <p>
+     * Check the reference on @see <a https://meshblu-socketio.readme.io/docs/update</a>
+     */
+    public <T extends AbstractThingDevice> void updateDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected, InvalidParametersException {
+
+        if (isSocketConnected() && isSocketRegistered()) {
+            if (device != null && callbackResult != null) {
+                String json = mGson.toJson(device);
+
+                JSONObject deviceToUpdate = null;
+                try {
+                    deviceToUpdate = new JSONObject(json);
+                } catch (JSONException e) {
+                    throw new InvalidParametersException("Invalid parameters. Please, check your device object");
+                }
+
+                if (deviceToUpdate != null) {
+
+                    mSocket.emit(EVENT_UPDATE_DEVICE, deviceToUpdate, new Ack() {
+                        @Override
+                        public void call(Object... args) {
+                            //Get First element of the array
+                            if (args.length > 0 && args[FIRST_EVENT_RECEIVED] != null) {
+                                JsonElement jsonElement = new JsonParser().parse(args[FIRST_EVENT_RECEIVED].toString());
+                                JsonObject jsonObject = jsonElement.getAsJsonObject();
+                                if (jsonObject.get(ERROR) != null) {
+                                    callbackResult.onEventError(new KnotException(jsonObject.get(ERROR).toString()));
+                                } else {
+                                    T result = (T) mGson.fromJson(args[0].toString(), device.getClass());
+                                    callbackResult.onEventFinish(result);
+                                }
+
+                            } else {
+                                callbackResult.onEventError(new KnotException("Failed to update file"));
+                            }
+                        }
+                    });
+                }
+            } else {
+                throw new InvalidParametersException("Invalid parameters");
+            }
+        } else {
+            throw new SocketNotConnected("Socket not ready or connected");
+        }
+    }
+
+
+    /**
+     * Method used to claim a specif device;
+     *
+     * @param device         device Wanted
+     * @param callbackResult Callback for this method
+     * @throws SocketNotConnected
+     * @throws InvalidParametersException
+     * @throws JSONException
+     */
+    public <T extends AbstractThingDevice> void claimDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected, InvalidParametersException, JSONException {
+
+        if (isSocketConnected() && isSocketRegistered()) {
+            if (device != null && callbackResult != null) {
+                JSONObject uuidDevice = new JSONObject();
+                uuidDevice.put(UUID, device);
+
+                mSocket.emit(EVENT_CLAIM_DEVICE, uuidDevice, new Ack() {
+                    @Override
+                    public void call(Object... args) {
+                        if (args != null && args.length > 0) {
+                            JsonElement jsonElement = new JsonParser().parse(args[FIRST_EVENT_RECEIVED].toString());
+                            JsonObject jsonObject = jsonElement.getAsJsonObject();
+                            if (jsonObject.get(ERROR) != null && !jsonObject.get(ERROR).isJsonNull()) {
+                                callbackResult.onEventError(new KnotException(jsonObject.get(ERROR).toString()));
+                            } else {
+                                callbackResult.onEventFinish(true);
+                            }
+                        } else {
+                            callbackResult.onEventError(new KnotException("Error in reading the result"));
+                        }
+                    }
+                });
+            } else {
+                throw new InvalidParametersException("Invalid parameters");
+            }
+        } else {
+            throw new SocketNotConnected("Socket not ready or connected");
+        }
+
+    }
+
+    /**
+     * This method returns a instance of the device
+     *
+     * @param typeClass      The specific genericized type of src.
+     * @param uuid           The device identification to find a device on server
+     * @param callbackResult Callback for this method
+     * @param <T>            the type of the desired object
+     * @throws JSONException
+     */
+    public <T extends AbstractThingDevice> void getDevice(final T typeClass, String uuid, final Event<T> callbackResult) throws JSONException, InvalidParametersException, SocketNotConnected {
+
+        if (isSocketConnected() && isSocketRegistered()) {
+            if (typeClass != null && callbackResult != null && uuid != null) {
+
+                JSONObject uuidDevice = new JSONObject();
+                uuidDevice.put(UUID, uuid);
+
+                mSocket.emit(EVENT_GET_DEVICE, uuidDevice, new Ack() {
+                    @Override
+                    public void call(Object... args) {
+
+                        if (args != null && args.length > 0) {
+
+                            JsonElement jsonElement = new JsonParser().parse(args[FIRST_EVENT_RECEIVED].toString());
+                            JsonObject jsonObject = jsonElement.getAsJsonObject();
+                            if (jsonObject.get(ERROR) != null && !jsonObject.get(ERROR).isJsonNull()) {
+                                callbackResult.onEventError(new KnotException(jsonObject.get(ERROR).toString()));
+                            } else if (jsonObject.get(FROM) != null) {
+                                JsonObject json = jsonObject.get(DEVICE).getAsJsonObject();
+                                try {
+                                    T result = (T) mGson.fromJson(json.toString(), typeClass.getClass());
+                                    callbackResult.onEventFinish(result);
+                                } catch (Exception e) {
+                                    callbackResult.onEventError(new KnotException("Error in reading the result"));
+                                }
+                            } else {
+                                callbackResult.onEventError(new KnotException("Unknown error"));
+                            }
+                        } else {
+                            callbackResult.onEventError(new KnotException("Error in reading the result"));
+                        }
+                    }
+                });
+
+            } else {
+                throw new InvalidParametersException("Invalid parameters");
+            }
+        } else {
+            throw new SocketNotConnected("Socket not ready or connected");
+        }
+
+    }
+
+    /**
+     * This method return a list devices of the specific owner
+     *
+     * @param typeThing      Generic type of list.
+     * @param query          Query to find devices
+     * @param callbackResult List of devices
+     * @throws KnotException
+     *  <p>
+     * @see <ahttps://meshblu-socketio.readme.io/docs/devices </a>
+     */
+    public <T extends AbstractThingDevice> void getDeviceList(final ThingList<T> typeThing, JSONObject
+            query, final Event<T> callbackResult) throws KnotException, SocketNotConnected, InvalidParametersException {
+        if (isSocketConnected() && isSocketRegistered()) {
+            if (typeThing != null && query != null && callbackResult != null) {
+
+
+                mSocket.emit(EVENT_GET_DEVICES, query, new Ack() {
+                    @Override
+                    public void call(Object... args) {
+                        List<T> result = null;
+                        try {
+                            JsonElement jsonElement = new JsonParser().parse(args[FIRST_EVENT_RECEIVED].toString());
+                            JsonArray jsonArray = jsonElement.getAsJsonObject().getAsJsonArray(DEVICES);
+                            if (jsonArray != null || jsonArray.size() > 0) {
+                                result = mGson.fromJson(jsonArray, typeThing);
+                            } else {
+                                result = mGson.fromJson(EMPTY_JSON, typeThing);
+                            }
+                            callbackResult.onEventFinish((T) result);
+                        } catch (Exception e) {
+                            callbackResult.onEventError();
+                        }
+                    }
+                });
+            } else {
+                throw new InvalidParametersException("Invalid parameters");
+            }
+        } else {
+            throw new SocketNotConnected("Socket not ready or connected");
+        }
+    }
+
+
+    /**
+     * Create data for one device. If the device has an owner, it is necessary that the owner
+     * param be the same of the device owner.
+     *
+     * @param data           data that will be created for device
+     * @param callbackResult Callback for this method
+     * @throws KnotException
+     * @throws SocketNotConnected
+     * @throws InvalidParametersException
+     */
+    public <T extends AbstractThingData> void createData(final String uuid, final T data, final Event<T> callbackResult) throws JSONException, InvalidParametersException, SocketNotConnected {
+
+        if (isSocketConnected() && isSocketRegistered()) {
+            if (data != null && callbackResult != null) {
+                String json = mGson.toJson(data);
+                JSONObject dataToSend = new JSONObject(json);
+                dataToSend.put(UUID, uuid);
+
+                mSocket.emit(EVENT_INSERT_DATA, dataToSend, new Ack() {
+                    @Override
+                    public void call(Object... args) {
+                        //When the result is success, the response return empty.
+                        if (args != null && args.length == 0) {
+                            callbackResult.onEventFinish(data);
+                        } else {
+                            callbackResult.onEventError();
+                        }
+                    }
+                });
+            } else {
+                throw new InvalidParametersException("Invalid parameters");
+            }
+        } else {
+            throw new SocketNotConnected("Socket not ready or connected");
+        }
+    }
+
+    /**
+     * Get all data of the specific device
+     *
+     * @param type           List of abstracts objects
+     * @param uuid           UUid of device
+     * @param callbackResult Callback for this method
+     * @throws InvalidParametersException
+     * @throws SocketNotConnected
+     */
+    public <T extends AbstractThingData> void getData(final ThingList<T> type, String uuid, final Event<List<T>> callbackResult) throws InvalidParametersException, SocketNotConnected {
+
+        if (isSocketConnected() && isSocketRegistered()) {
+            if (uuid != null && callbackResult != null) {
+
+                JSONObject dataToSend = new JSONObject();
+                try {
+                    dataToSend.put(UUID, uuid);
+                } catch (JSONException e) {
+                    callbackResult.onEventError(new KnotException());
+                }
+
+                mSocket.emit(EVENT_GET_DATA, dataToSend, new Ack() {
+                    @Override
+                    public void call(Object... args) {
+                        if (args != null && args.length > 0) {
+                            List<T> result = null;
+                            JsonElement jsonElement = new JsonParser().parse(args[FIRST_EVENT_RECEIVED].toString());
+                            JsonArray jsonArray = jsonElement.getAsJsonObject().getAsJsonArray(DATA);
+
+                            if (jsonArray != null || jsonArray.size() > 0) {
+                                result = mGson.fromJson(jsonArray.toString(), type);
+                            } else {
+                                result = mGson.fromJson(EMPTY_JSON, type);
+                            }
+
+                            callbackResult.onEventFinish(result);
+                        } else {
+                            callbackResult.onEventError(new KnotException());
+                        }
+                    }
+                });
+
+            } else {
+                throw new InvalidParametersException("Invalid parameters");
+            }
+
+        } else {
+            throw new SocketNotConnected("Socket not ready or connected");
+        }
+
+    }
+
+
+    /**
+     * Set callback to receive message to your device
+     * @param messageEventCallback Callback to receive message
+     */
+    public void setCallbackToMessageEvent(final Event<AbstractThingMessage> messageEventCallback){
+        mOnMessageEventCallback = messageEventCallback;
+    }
+
+    /**
+     * Set callback to capture information of the your device
+     * @param configEventeCallback Callback to receive device information
+     */
+    public void setCallbackToConfigEvent(final Event<AbstractThingDevice> configEventeCallback){
+        mOnConfigEventCallback = configEventeCallback;
+    }
+
+    /**
+     * Building a JsonObject to use in some methods
+     *
+     * @param device that contains all information
+     * @return JsonObject
+     */
+    private <T extends AbstractThingDevice> JSONObject getNecessaryDeviceInformation(T device) {
+        JSONObject deviceInformation = new JSONObject();
+
         try {
-            deviceObject.put("uuid", "f32ac874-55fe-4bda-8a0f-588dbe9b0000");
-            deviceObject.put("token", "2b76efa91e81709ef01c42534f19c92656b1900d");
+            deviceInformation.put(UUID, device.uuid);
+            deviceInformation.put(TOKEN, device.token);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        return deviceObject;
+        return deviceInformation;
     }
 
+    /**
+     * Is mSocket connected boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isSocketConnected() {
+        return mSocket != null && mSocket.connected();
+    }
+
+    /**
+     * Is mSocket registered on meshblu .
+     *
+     * @return the boolean
+     */
+    public boolean isSocketRegistered() {
+        return isSocketConnected() && mDeviceRegistered;
+    }
 
 }

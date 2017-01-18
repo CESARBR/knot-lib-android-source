@@ -25,6 +25,7 @@ import com.squareup.okhttp.Response;
 import java.net.HttpURLConnection;
 import java.util.List;
 
+import br.org.cesar.knot.lib.event.Event;
 import br.org.cesar.knot.lib.exception.KnotException;
 import br.org.cesar.knot.lib.model.AbstractThingData;
 import br.org.cesar.knot.lib.model.AbstractThingDevice;
@@ -98,7 +99,7 @@ final class ThingApi {
      * @param callback Callback for this method
      * @see AbstractThingDevice
      */
-    public <T extends AbstractThingDevice> void createDevice(final T device, final Callback<T> callback) {
+    public <T extends AbstractThingDevice> void createDevice(final T device, final Event<T> callback) {
         new Thread() {
             @Override
             public void run() {
@@ -146,7 +147,7 @@ final class ThingApi {
      * @param device   the identifier of device (uuid)
      * @param callback Callback for this method
      */
-    public void claimDevice(final String owner, final String token, final String device, final Callback<Boolean> callback) {
+    public void claimDevice(final String owner, final String token, final String device, final Event<Boolean> callback) {
         new Thread() {
             @Override
             public void run() {
@@ -192,7 +193,7 @@ final class ThingApi {
      * @param callback Callback for this method
      */
     public <T extends AbstractThingDevice> void updateDevice(final String owner, final String token,
-                                                             final String id, final T device, final Callback<T> callback) {
+                                                             final String id, final T device, final Event<T> callback) {
         new Thread() {
             @Override
             public void run() {
@@ -237,7 +238,7 @@ final class ThingApi {
      * @param device   the device identifier (uuid)
      * @param callback Callback for this method
      */
-    public void deleteDevice(final String owner, final String token, final String device, final Callback<Boolean> callback) {
+    public void deleteDevice(final String owner, final String token, final String device, final Event<Boolean> callback) {
         new Thread() {
             @Override
             public void run() {
@@ -288,7 +289,7 @@ final class ThingApi {
      */
 
     public <T extends JsonElement> void whoAmI(final String owner, final String token,
-                                               final Class<T> clazz, final Callback<T> callback) {
+                                               final Class<T> clazz, final Event<T> callback) {
         new Thread() {
             @Override
             public void run() {
@@ -344,7 +345,7 @@ final class ThingApi {
      * @return an object based on the class parameter
      */
     public <T extends AbstractThingDevice> void getDevice(final String owner, final String token,
-                                                          final String device, final Class<T> clazz, final Callback<T> callback) {
+                                                          final String device, final Class<T> clazz, final Event<T> callback) {
         new Thread() {
             @Override
             public void run() {
@@ -400,7 +401,7 @@ final class ThingApi {
      * @return an object based on the class parameter
      */
     public <T extends AbstractThingDevice> void getDeviceGateway(final String owner, final String token,
-                                                                 final String device, final Class<T> clazz, final Callback<T> callback) {
+                                                                 final String device, final Class<T> clazz, final Event<T> callback) {
         new Thread() {
             @Override
             public void run() {
@@ -450,7 +451,7 @@ final class ThingApi {
      * @return a List with all devices those belongs to the owner
      * @throws KnotException
      */
-    public <T extends AbstractThingDevice> void getDeviceList(final String owner, final String token, final ThingList<T> type, final Callback<List<T>> callback) {
+    public <T extends AbstractThingDevice> void getDeviceList(final String owner, final String token, final ThingList<T> type, final Event<List<T>> callback) {
         new Thread() {
             @Override
             public void run() {
@@ -504,7 +505,7 @@ final class ThingApi {
      * @throws KnotException
      */
     public <T extends AbstractThingData> void createData(final String owner, final String token,
-                                                         final String device, final T data, final Callback<Boolean> callback) {
+                                                         final String device, final T data, final Event<Boolean> callback) {
         new Thread() {
             @Override
             public void run() {
@@ -555,7 +556,7 @@ final class ThingApi {
      * @param callback Callback for this method
      * @return a List with data of the device
      */
-    public <T extends AbstractThingData> void getDataList(final String owner, final String token, final String device, final ThingList<T> type, final Callback<List<T>> callback) {
+    public <T extends AbstractThingData> void getDataList(final String owner, final String token, final String device, final ThingList<T> type, final Event<List<T>> callback) {
         new Thread() {
             @Override
             public void run() {
@@ -606,7 +607,7 @@ final class ThingApi {
      * @return New message with meshblu content.
      * @see AbstractThingMessage
      */
-    public <T extends AbstractThingMessage> void sendMessage(final String owner, final String token, final T message, final Callback<T> callback) {
+    public <T extends AbstractThingMessage> void sendMessage(final String owner, final String token, final T message, final Event<T> callback) {
         new Thread() {
             @Override
             public void run() {
@@ -642,31 +643,21 @@ final class ThingApi {
         return new Request.Builder().url(endPoint);
     }
 
-    private <T> void dispatchSuccess(final Callback<T> callback, final T result) {
+    private <T> void dispatchSuccess(final Event<T> callback, final T result) {
         mMainHandler.post(new Runnable() {
             @Override
             public void run() {
-                callback.onSuccess(result);
+                callback.onEventFinish(result);
             }
         });
     }
 
-    private <T> void dispatchError(final Callback<T> callback, final Exception error) {
+    private <T> void dispatchError(final Event<T> callback, final Exception error) {
         mMainHandler.post(new Runnable() {
             @Override
             public void run() {
-                callback.onError(error);
+                callback.onEventError(error);
             }
         });
-    }
-
-    /**
-     * Interface used in asynchronous methods of ThingApi
-     */
-    public interface Callback<T> {
-
-        void onSuccess(T result);
-
-        void onError(Exception error);
     }
 }
