@@ -185,6 +185,16 @@ final class KnotSocketIo {
     private  Event<AbstractThingMessage> mOnMessageEventCallback;
 
     /**
+     *   Type of class used to build a new message received
+     */
+    private AbstractThingMessage mMessageClass;
+
+    /**
+     *   Type of class used to build a device that was modified
+     */
+    private AbstractThingDevice  mConfigClass;
+
+    /**
      * Callback used to transmit all modifications to client
      */
     private  Event<AbstractThingDevice> mOnConfigEventCallback;
@@ -733,21 +743,55 @@ final class KnotSocketIo {
 
     }
 
-
     /**
      * Set callback to receive message to your device
      * @param messageEventCallback Callback to receive message
      */
-    public void setCallbackToMessageEvent(final Event<AbstractThingMessage> messageEventCallback){
+    public <T extends AbstractThingMessage> void setCallbackToMessageEvent(final Event<AbstractThingMessage> messageEventCallback, T classOfT){
         mOnMessageEventCallback = messageEventCallback;
+        mMessageClass = classOfT;
     }
 
     /**
      * Set callback to capture information of the your device
      * @param configEventeCallback Callback to receive device information
      */
-    public void setCallbackToConfigEvent(final Event<AbstractThingDevice> configEventeCallback){
+    public <T extends AbstractThingDevice>  void setCallbackToConfigEvent(final Event<AbstractThingDevice> configEventeCallback, T classOfT){
         mOnConfigEventCallback = configEventeCallback;
+        mConfigClass = classOfT;
+    }
+
+    /**
+     *  Method used to make a parser from json to AbstractThingMessage.
+     *
+     * @param json Json that has message information
+     * @param <T> type of classe
+     */
+    private  <T extends AbstractThingMessage> void parserToMessage(String json){
+        if(json!=null && mOnMessageEventCallback!=null && mMessageClass !=null){
+            T result = (T) mGson.fromJson(json, mMessageClass.getClass());
+
+            if(result!=null){
+                mOnMessageEventCallback.onEventFinish(result);
+            }
+        }
+    }
+
+    /**
+     *  Method used to make a parser from json to AbstractThingDevice.
+     *
+     * @param json Json that has device's information
+     * @param <T> type of classe
+     */
+    private  <T extends AbstractThingDevice> void parserToConfig(String json){
+
+        if(json!=null){
+            T result = (T) mGson.fromJson(json, mConfigClass.getClass());
+
+            if(result!=null){
+                mOnConfigEventCallback.onEventFinish(result);
+            }
+        }
     }
 
     /**

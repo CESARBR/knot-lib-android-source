@@ -16,7 +16,7 @@ import java.util.List;
 * Abstract class that all message must extends
 * This class has the common message elements on KNOT
 */
-public class AbstractThingMessage {
+public abstract class AbstractThingMessage {
 
     private List<String> devices;
     private String message;
