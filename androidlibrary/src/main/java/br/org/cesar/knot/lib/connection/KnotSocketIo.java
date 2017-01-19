@@ -10,6 +10,7 @@
 
 package br.org.cesar.knot.lib.connection;
 
+import android.app.Activity;
 import android.support.annotation.NonNull;
 
 import com.github.nkzawa.emitter.Emitter;
@@ -228,8 +229,8 @@ final class KnotSocketIo {
 
         @Override
         public void call(Object... args) {
-            if(args!=null && args.length>0 && args[0]!=null){
-                parserToMessage(args[0].toString());
+            if(args!=null && args.length>0 && args[FIRST_EVENT_RECEIVED]!=null){
+                parserToMessage(args[FIRST_EVENT_RECEIVED].toString());
             }
 
         }
@@ -242,8 +243,8 @@ final class KnotSocketIo {
 
         @Override
         public void call(Object... args) {
-            if(args!=null && args.length>0 && args[0]!=null){
-                parserToConfig(args[0].toString());
+            if(args!=null && args.length>0 && args[FIRST_EVENT_RECEIVED]!=null){
+                parserToConfig(args[FIRST_EVENT_RECEIVED].toString());
             }
         }
     };
@@ -498,7 +499,7 @@ final class KnotSocketIo {
                                 if (jsonObject.get(ERROR) != null) {
                                     callbackResult.onEventError(new KnotException(jsonObject.get(ERROR).toString()));
                                 } else {
-                                    T result = (T) mGson.fromJson(args[0].toString(), device.getClass());
+                                    T result = (T) mGson.fromJson(args[FIRST_EVENT_RECEIVED].toString(), device.getClass());
                                     callbackResult.onEventFinish(result);
                                 }
 
@@ -626,7 +627,6 @@ final class KnotSocketIo {
         if (isSocketConnected() && isSocketRegistered()) {
             if (typeThing != null && query != null && callbackResult != null) {
 
-
                 mSocket.emit(EVENT_GET_DEVICES, query, new Ack() {
                     @Override
                     public void call(Object... args) {
@@ -740,6 +740,35 @@ final class KnotSocketIo {
         } else {
             throw new SocketNotConnected("Socket not ready or connected");
         }
+
+    }
+
+    /**
+     * This method sends a message to a device list of your choice.
+     *
+     * @param message AbstractThingMessage that will be sent
+     * @param <T> Type of Object
+     * @throws InvalidParametersException
+     * @throws SocketNotConnected
+     * @throws JSONException
+     * @see <a> https://meshblu-socketio.readme.io/docs/message </a>
+     */
+    public <T extends AbstractThingMessage> void sendMessage(final T message) throws InvalidParametersException, SocketNotConnected, JSONException {
+
+        if (isSocketConnected() && isSocketRegistered()) {
+            if (message != null) {
+                String json = mGson.toJson(message);
+                JSONObject dataToSend = new JSONObject(json);
+
+                mSocket.emit(EVENT_MESSAGE, dataToSend);
+
+            } else {
+                throw new InvalidParametersException("Invalid parameters");
+            }
+        } else {
+            throw new SocketNotConnected("Socket not ready or connected");
+        }
+
 
     }
 
