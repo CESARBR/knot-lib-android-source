@@ -228,8 +228,8 @@ final class KnotSocketIo {
 
         @Override
         public void call(Object... args) {
-            if(mOnMessageEventCallback !=null && args!=null){
-                //We needs more information about this function
+            if(args!=null && args.length>0 && args[0]!=null){
+                parserToMessage(args[0].toString());
             }
 
         }
@@ -242,8 +242,8 @@ final class KnotSocketIo {
 
         @Override
         public void call(Object... args) {
-            if(mOnConfigEventCallback !=null && args!=null){
-                //We needs more information about this function
+            if(args!=null && args.length>0 && args[0]!=null){
+                parserToConfig(args[0].toString());
             }
         }
     };
