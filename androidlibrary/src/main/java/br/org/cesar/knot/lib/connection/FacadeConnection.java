@@ -7,6 +7,7 @@
  *
  *
  */
+
 package br.org.cesar.knot.lib.connection;
 
 import android.support.annotation.NonNull;
@@ -16,6 +17,7 @@ import com.google.gson.JsonElement;
 import java.util.List;
 
 import br.org.cesar.knot.lib.event.Event;
+import br.org.cesar.knot.lib.exception.InvalidDeviceOwnerStateException;
 import br.org.cesar.knot.lib.exception.KnotException;
 import br.org.cesar.knot.lib.exception.SocketNotConnected;
 import br.org.cesar.knot.lib.model.AbstractThingData;
@@ -78,7 +80,7 @@ public class FacadeConnection {
         if (socketIO != null && !isSocketConnected()) {
             socketIO.createNewDevice(device, callbackResult);
         } else {
-            throw new SocketNotConnected("Socket not connected");
+            throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
         }
     }
 
@@ -134,6 +136,33 @@ public class FacadeConnection {
     }
 
     /**
+     * release the reference of local AbstractDeviceOwner
+     *
+     * @throws IllegalStateException
+     */
+    public void releaseDeviceOwner() throws IllegalStateException {
+        if (thingApi == null) {
+            throw new IllegalStateException("Did you call the method setupHttp?");
+        } else {
+            thingApi.releaseDeviceOwner();
+        }
+    }
+
+    /**
+     * Check if exists a valid Device Owner in cache
+     *
+     * @return true if exists a valid DeviceOwner
+     * @throws IllegalStateException
+     */
+    public boolean isValidDeviceOwner() throws IllegalStateException {
+        if (thingApi == null) {
+            throw new IllegalStateException("Did you call the method setupHttp?");
+        } else {
+            return thingApi.isValidDeviceOwner();
+        }
+    }
+
+    /**
      * Generate a new Device in Meshblu instance
      *
      * @param device model sample to create a new one. Basically this device model
@@ -145,9 +174,9 @@ public class FacadeConnection {
      * @throws KnotException
      * @see AbstractThingDevice
      */
-    public <T extends AbstractThingDevice> T httpCreateDevice(T device) throws KnotException, IllegalStateException {
+    public <T extends AbstractThingDevice> T httpCreateDevice(T device) throws IllegalStateException, KnotException {
         if (thingApi == null) {
-            throw new IllegalStateException("was you call the setupHttp?");
+            throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
             return thingApi.createDevice(device);
         }
@@ -166,7 +195,7 @@ public class FacadeConnection {
      */
     public <T extends AbstractThingDevice> void httpCreateDevice(final T device, final Event<T> callback) throws IllegalStateException {
         if (thingApi == null) {
-            throw new IllegalStateException("was you call the setupHttp?");
+            throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
             thingApi.createDevice(device, callback);
         }
@@ -179,68 +208,59 @@ public class FacadeConnection {
      * owner can delete or update it.
      * Note: In Meshblu, the owner for one device IS another device.
      *
-     * @param owner  the identifier of owner to connect on Meshblu (uuid).
-     * @param token  the token for owner
      * @param device the identifier of device (uuid)
      * @return a boolean value to indicate if the device could be claimed
      * @throws KnotException
      */
-    public Boolean httpClaimDevice(String owner, String token, String device) throws KnotException, IllegalStateException {
+    public Boolean httpClaimDevice(String device) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
         if (thingApi == null) {
-            throw new IllegalStateException("was you call the setupHttp?");
+            throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            return thingApi.claimDevice(owner, token, device);
+            return thingApi.claimDevice(device);
         }
     }
 
     /**
-     * Async version of {@link #httpClaimDevice(String, String, String)}
+     * Async version of {@link #httpClaimDevice(String)}
      *
-     * @param owner    the identifier of owner to connect on Meshblu (uuid).
-     * @param token    the token for owner
      * @param device   the identifier of device (uuid)
      * @param callback Callback for this method
      */
-    public void httpClaimDevice(final String owner, final String token, final String device, final Event<Boolean> callback) throws IllegalStateException {
+    public void httpClaimDevice(final String device, final Event<Boolean> callback) throws IllegalStateException {
         if (thingApi == null) {
-            throw new IllegalStateException("was you call the setupHttp?");
+            throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            thingApi.claimDevice(owner, token, device, callback);
+            thingApi.claimDevice(device, callback);
         }
     }
 
     /**
      * Update an existent device
      *
-     * @param owner  the identifier of owner to connect on Meshblu (uuid).
-     * @param token  the token for owner
      * @param device the identifier of device (uuid)
      * @return the object updated
      * @throws KnotException
      */
-    public <T extends AbstractThingDevice> T httpUpdateDevice(String owner, String token, String id, T device) throws KnotException, IllegalStateException {
+    public <T extends AbstractThingDevice> T httpUpdateDevice(String id, T device) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
         if (thingApi == null) {
-            throw new IllegalStateException("was you call the setupHttp?");
+            throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            return thingApi.updateDevice(owner, token, id, device);
+            return thingApi.updateDevice(id, device);
         }
     }
 
     /**
-     * Async version of {@link #httpUpdateDevice(String, String, String, AbstractThingDevice)}
+     * Async version of {@link #httpUpdateDevice(String, AbstractThingDevice)}
      *
-     * @param owner    the identifier of owner to connect on Meshblu (uuid).
-     * @param token    the token for owner
      * @param device   the identifier of device (uuid)
      * @param callback Callback for this method
      */
-    public <T extends AbstractThingDevice> void httpUpdateDevice(final String owner, final String token,
-                                                                 final String id, final T device, final Event<T> callback) throws IllegalStateException {
+    public <T extends AbstractThingDevice> void httpUpdateDevice(final String id, final T device, final Event<T> callback) throws IllegalStateException {
 
         if (thingApi == null) {
-            throw new IllegalStateException("was you call the setupHttp?");
+            throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            thingApi.updateDevice(owner, token, id, device, callback);
+            thingApi.updateDevice(id, device, callback);
         }
     }
 
@@ -249,60 +269,52 @@ public class FacadeConnection {
      * anyone can delete it. However if the device has an owner,
      * only it can execute this action.
      *
-     * @param owner  the owner of the device.
-     * @param token  the token for this owner
      * @param device the device identifier (uuid)
      * @return a boolean to indicate if the device was deleted
      * @throws KnotException
      */
-    public boolean httpDdeleteDevice(String owner, String token, String device) throws KnotException, IllegalStateException {
+    public boolean httpDdeleteDevice(String device) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
         if (thingApi == null) {
-            throw new IllegalStateException("was you call the setupHttp?");
+            throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            return thingApi.deleteDevice(owner, token, device);
+            return thingApi.deleteDevice(device);
         }
     }
 
     /**
-     * Async version of {@link ThingApi#deleteDevice(String, String, String)}
+     * Async version of {@link ThingApi#deleteDevice(String)}
      *
-     * @param owner    the owner of the device.
-     * @param token    the token for this owner
      * @param device   the device identifier (uuid)
      * @param callback Callback for this method
      */
-    public void httpDeleteDevice(final String owner, final String token, final String device, final Event<Boolean> callback) throws IllegalStateException {
+    public void httpDeleteDevice(final String device, final Event<Boolean> callback) throws IllegalStateException {
         if (thingApi == null) {
-            throw new IllegalStateException("was you call the setupHttp?");
+            throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            thingApi.deleteDevice(owner, token, device, callback);
+            thingApi.deleteDevice(device, callback);
         }
     }
 
     /**
      * Get all information regarding the device.
      *
-     * @param owner the owner of the device.
-     * @param token the token for this owner
      * @param clazz The class for this device. Meshblu works with any type of objects and
      *              it is necessary deserialize the return to a valid object.
      *              Note: The class parameter should be a extension of {@link AbstractThingDevice}
      * @return an json element containing device informations
      * @throws KnotException
      */
-    public <T extends JsonElement> T httpWhoAmI(String owner, String token, Class<T> clazz) throws KnotException, IllegalStateException {
+    public <T extends JsonElement> T httpWhoAmI(Class<T> clazz) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
         if (thingApi == null) {
-            throw new IllegalStateException("was you call the setupHttp?");
+            throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            return thingApi.whoAmI(owner, token, clazz);
+            return thingApi.whoAmI(clazz);
         }
     }
 
     /**
-     * Async version of {@link #httpWhoAmI(String, String, Class)}
+     * Async version of {@link #httpWhoAmI(Class)}
      *
-     * @param owner    the owner of the device.
-     * @param token    the token for this owner
      * @param clazz    The class for this device. Meshblu works with any type of objects and
      *                 it is necessary deserialize the return to a valid object.
      *                 Note: The class parameter should be a extension of {@link AbstractThingDevice}
@@ -310,20 +322,17 @@ public class FacadeConnection {
      * @return an object based on the class parameter
      */
 
-    public <T extends JsonElement> void httpWhoAmI(final String owner, final String token,
-                                               final Class<T> clazz, final Event<T> callback) throws IllegalStateException {
+    public <T extends JsonElement> void httpWhoAmI(final Class<T> clazz, final Event<T> callback) throws IllegalStateException {
         if (thingApi == null) {
-            throw new IllegalStateException("was you call the setupHttp?");
+            throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            thingApi.whoAmI(owner, token, clazz, callback);
+            thingApi.whoAmI(clazz, callback);
         }
     }
 
     /**
      * Get a specific device from Meshblu instance.
      *
-     * @param owner  the owner of the device.
-     * @param token  the token for this owner
      * @param device the device identifier (uuid)
      * @param clazz  The class for this device. Meshblu works with any type of objects and
      *               it is necessary deserialize the return to a valid object.
@@ -331,19 +340,17 @@ public class FacadeConnection {
      * @return an object based on the class parameter
      * @throws KnotException
      */
-    public <T extends AbstractThingDevice> T httpGetDevice(String owner, String token, String device, Class<T> clazz) throws KnotException, IllegalStateException {
+    public <T extends AbstractThingDevice> T httpGetDevice(String device, Class<T> clazz) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
         if (thingApi == null) {
-            throw new IllegalStateException("was you call the setupHttp?");
+            throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            return thingApi.getDevice(owner, token, device, clazz);
+            return thingApi.getDevice(device, clazz);
         }
     }
 
     /**
-     * Async version of {@link #httpGetDevice(String, String, String, Class)}
+     * Async version of {@link #httpGetDevice(String, Class)}
      *
-     * @param owner    the owner of the device.
-     * @param token    the token for this owner
      * @param device   the device identifier (uuid)
      * @param clazz    The class for this device. Meshblu works with any type of objects and
      *                 it is necessary deserialize the return to a valid object.
@@ -351,20 +358,17 @@ public class FacadeConnection {
      * @param callback Callback for this method
      * @return an object based on the class parameter
      */
-    public <T extends AbstractThingDevice> void httpGetDevice(final String owner, final String token,
-                                                          final String device, final Class<T> clazz, final Event<T> callback) throws IllegalStateException {
+    public <T extends AbstractThingDevice> void httpGetDevice(final String device, final Class<T> clazz, final Event<T> callback) throws IllegalStateException {
         if (thingApi == null) {
-            throw new IllegalStateException("was you call the setupHttp?");
+            throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            thingApi.getDevice(owner, token, device, clazz, callback);
+            thingApi.getDevice(device, clazz, callback);
         }
     }
 
     /**
      * Get a specific device's gateway from Meshblu instance.
      *
-     * @param owner  the owner of the device.
-     * @param token  the token for this owner
      * @param device the device identifier (uuid)
      * @param clazz  The class for this device. Meshblu works with any type of objects and
      *               it is necessary deserialize the return to a valid object.
@@ -372,19 +376,17 @@ public class FacadeConnection {
      * @return an object based on the class parameter
      * @throws KnotException
      */
-    public <T extends AbstractThingDevice> T httpGetDeviceGateway(String owner, String token, String device, Class<T> clazz) throws KnotException, IllegalStateException {
+    public <T extends AbstractThingDevice> T httpGetDeviceGateway(String device, Class<T> clazz) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
         if (thingApi == null) {
-            throw new IllegalStateException("was you call the setupHttp?");
+            throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            return thingApi.getDeviceGateway(owner, token, device, clazz);
+            return thingApi.getDeviceGateway(device, clazz);
         }
     }
 
     /**
-     * Async version of {@link #httpGetDeviceGateway(String, String, String, Class)}
+     * Async version of {@link #httpGetDeviceGateway(String, Class)}
      *
-     * @param owner    the owner of the device.
-     * @param token    the token for this owner
      * @param device   the device identifier (uuid)
      * @param clazz    The class for this device. Meshblu works with any type of objects and
      *                 it is necessary deserialize the return to a valid object.
@@ -392,47 +394,42 @@ public class FacadeConnection {
      * @param callback Callback for this method
      * @return an object based on the class parameter
      */
-    public <T extends AbstractThingDevice> void httpGetDeviceGateway(final String owner, final String token,
-                                                                 final String device, final Class<T> clazz, final Event<T> callback) throws IllegalStateException {
+    public <T extends AbstractThingDevice> void httpGetDeviceGateway(final String device, final Class<T> clazz, final Event<T> callback) throws IllegalStateException {
         if (thingApi == null) {
-            throw new IllegalStateException("was you call the setupHttp?");
+            throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            thingApi.getDeviceGateway(owner, token, device, clazz, callback);
+            thingApi.getDeviceGateway(device, clazz, callback);
         }
     }
 
     /**
      * Get all devices those are claimed by one owner
      *
-     * @param owner the owner of the device.
-     * @param token the token for this owner
-     * @param type  object that will define what elements will returned by this method
+     * @param type object that will define what elements will returned by this method
      * @return a List with all devices those belongs to the owner
      * @throws KnotException
      */
-    public <T extends AbstractThingDevice> List<T> httpGetDeviceList(String owner, String token, final ThingList<T> type) throws KnotException, IllegalStateException {
+    public <T extends AbstractThingDevice> List<T> httpGetDeviceList(final ThingList<T> type) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
         if (thingApi == null) {
-            throw new IllegalStateException("was you call the setupHttp?");
+            throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            return thingApi.getDeviceList(owner, token, type);
+            return thingApi.getDeviceList(type);
         }
     }
 
     /**
-     * Async version of {@link #httpGetDeviceList(String, String, ThingList)}
+     * Async version of {@link #httpGetDeviceList(ThingList)}
      *
-     * @param owner    the owner of the device.
-     * @param token    the token for this owner.
      * @param type     object that will define what elements will returned by this method
      * @param callback
      * @return a List with all devices those belongs to the owner
-     * @throws KnotException
+     * @throws KnotException KnotException
      */
-    public <T extends AbstractThingDevice> void httpGetDeviceList(final String owner, final String token, final ThingList<T> type, final Event<List<T>> callback) throws IllegalStateException {
+    public <T extends AbstractThingDevice> void httpGetDeviceList(final ThingList<T> type, final Event<List<T>> callback) throws IllegalStateException {
         if (thingApi == null) {
-            throw new IllegalStateException("was you call the setupHttp?");
+            throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            thingApi.getDeviceList(owner, token, type, callback);
+            thingApi.getDeviceList(type, callback);
         }
     }
 
@@ -440,72 +437,63 @@ public class FacadeConnection {
      * Create data for one device. If the device has an owner, it is necessary that the owner
      * param be the same of the device owner.
      *
-     * @param owner  the owner of the device.
-     * @param token  the token for this owner.
      * @param device the device identifier (uuid)
      * @param data   data that will be created for device
      * @return a boolean value to indicate if the data could be create for device
      * @throws KnotException
      */
-    public <T extends AbstractThingData> boolean httpCreateData(String owner, String token, String device, T data) throws KnotException, IllegalStateException {
+    public <T extends AbstractThingData> boolean httpCreateData(String device, T data) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
         if (thingApi == null) {
-            throw new IllegalStateException("was you call the setupHttp?");
+            throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            return thingApi.createData(owner, token, device, data);
+            return thingApi.createData(device, data);
         }
     }
 
     /**
-     * Async version of {@link #httpCreateData(String, String, String, AbstractThingData)}
+     * Async version of {@link #httpCreateData(String, AbstractThingData)}
      *
-     * @param owner    the owner of the device.
-     * @param token    the token for this owner.
      * @param device   the device identifier (uuid)
      * @param data     data that will be created for device
      * @param callback Callback for this method
      * @return a boolean value to indicate if the data could be create for device
      * @throws KnotException
      */
-    public <T extends AbstractThingData> void httpCreateData(final String owner, final String token,
-                                                         final String device, final T data, final  Event<Boolean> callback) throws IllegalStateException {
+    public <T extends AbstractThingData> void httpCreateData(final String device, final T data, final Event<Boolean> callback) throws IllegalStateException {
         if (thingApi == null) {
-            throw new IllegalStateException("was you call the setupHttp?");
+            throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            thingApi.createData(owner, token, device, data, callback);
+            thingApi.createData(device, data, callback);
         }
     }
 
     /**
-     * @param owner  the owner of the device.
-     * @param token  the token for this owner.
      * @param device the device identifier (uuid)
      * @param type   object that will define what elements will returned by this method
      * @return a List with data of the device
      * @throws KnotException
      */
-    public <T extends AbstractThingData> List<T> httpGetDataList(String owner, String token, String device, final ThingList<T> type) throws KnotException, IllegalStateException {
+    public <T extends AbstractThingData> List<T> httpGetDataList(String device, final ThingList<T> type) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
         if (thingApi == null) {
-            throw new IllegalStateException("was you call the setupHttp?");
+            throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            return thingApi.getDataList(owner, token, device, type);
+            return thingApi.getDataList(device, type);
         }
     }
 
     /**
-     * Async version of {@link #httpGetDataList(String, String, String, ThingList)}
+     * Async version of {@link #httpGetDataList(String, ThingList)}
      *
-     * @param owner    the owner of the device.
-     * @param token    the token for this owner.
      * @param device   the device identifier (uuid)
      * @param type     object that will define what elements will returned by this method
      * @param callback Callback for this method
      * @return a List with data of the device
      */
-    public <T extends AbstractThingData> void httpGetDataList(final String owner, final String token, final String device, final ThingList<T> type, final Event<List<T>> callback) throws IllegalStateException {
+    public <T extends AbstractThingData> void httpGetDataList(final String device, final ThingList<T> type, final Event<List<T>> callback) throws IllegalStateException {
         if (thingApi == null) {
-            throw new IllegalStateException("was you call the setupHttp?");
+            throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            thingApi.getDataList(owner, token, device, type, callback);
+            thingApi.getDataList(device, type, callback);
         }
     }
 
@@ -518,11 +506,11 @@ public class FacadeConnection {
      * @throws KnotException
      * @see AbstractThingMessage
      */
-    public <T extends AbstractThingMessage> T httpSendMessage(String owner, String token, T message) throws KnotException, IllegalStateException {
+    public <T extends AbstractThingMessage> T httpSendMessage(String owner, String token, T message) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
         if (thingApi == null) {
-            throw new IllegalStateException("was you call the setupHttp?");
+            throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            return thingApi.sendMessage(owner, token, message);
+            return thingApi.sendMessage(message);
         }
     }
 
@@ -534,11 +522,11 @@ public class FacadeConnection {
      * @return New message with meshblu content.
      * @see AbstractThingMessage
      */
-    public <T extends AbstractThingMessage> void httpSendMessage(final String owner, final String token, final T message, final Event<T> callback) throws IllegalStateException {
+    public <T extends AbstractThingMessage> void httpSendMessage(final T message, final Event<T> callback) throws IllegalStateException {
         if (thingApi == null) {
-            throw new IllegalStateException("was you call the setupHttp?");
+            throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            thingApi.sendMessage(owner, token, message, callback);
+            thingApi.sendMessage(message, callback);
         }
     }
 

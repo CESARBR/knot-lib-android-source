@@ -7,6 +7,7 @@
  *
  *
  */
+
 package br.org.cesar.knot.lib.exception;
 
 /**

@@ -182,12 +182,12 @@ final class KnotSocketIo {
     /**
      * Callback used to transmit all messages to client
      */
-    private  Event<AbstractThingMessage> mOnMessageEventCallback;
+    private Event<AbstractThingMessage> mOnMessageEventCallback;
 
     /**
      * Callback used to transmit all modifications to client
      */
-    private  Event<AbstractThingDevice> mOnConfigEventCallback;
+    private Event<AbstractThingDevice> mOnConfigEventCallback;
 
     /**
      * This event is called when the server response if the device was registered
@@ -218,7 +218,7 @@ final class KnotSocketIo {
 
         @Override
         public void call(Object... args) {
-            if(mOnMessageEventCallback !=null && args!=null){
+            if (mOnMessageEventCallback != null && args != null) {
                 //We needs more information about this function
             }
 
@@ -232,7 +232,7 @@ final class KnotSocketIo {
 
         @Override
         public void call(Object... args) {
-            if(mOnConfigEventCallback !=null && args!=null){
+            if (mOnConfigEventCallback != null && args != null) {
                 //We needs more information about this function
             }
         }
@@ -268,8 +268,8 @@ final class KnotSocketIo {
 
             mSocket.on(EVENT_READY, onReady);
             mSocket.on(EVENT_NOT_READY, onNotReady);
-            mSocket.on(EVENT_MESSAGE,onMessageReceived);
-            mSocket.on(EVENT_CONFIG,onConfigDevice);
+            mSocket.on(EVENT_MESSAGE, onMessageReceived);
+            mSocket.on(EVENT_CONFIG, onConfigDevice);
 
             mSocket.connect();
         } catch (URISyntaxException e) {
@@ -340,9 +340,8 @@ final class KnotSocketIo {
      * @param device         the identifier of device (uuid)
      * @param callbackResult Callback for this method
      * @throws KnotException
-     * @throws SocketNotConnected
-     * <p>
-     * Check the reference on @see <a https://meshblu-socketio.readme.io/docs/unregister</a>
+     * @throws SocketNotConnected <p>
+     *                            Check the reference on @see <a https://meshblu-socketio.readme.io/docs/unregister</a>
      */
     public <T extends AbstractThingDevice> void deleteDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected {
 
@@ -386,7 +385,7 @@ final class KnotSocketIo {
      * @throws KnotException
      * @throws SocketNotConnected
      * @throws InvalidParametersException Check the reference on
-     * <p>
+     *                                    <p>
      * @see <a https://meshblu-socketio.readme.io/docs/identity</a>
      */
     public <T extends AbstractThingDevice> void authenticateDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected, InvalidParametersException {
@@ -421,7 +420,7 @@ final class KnotSocketIo {
      * @throws KnotException
      * @throws SocketNotConnected
      * @throws InvalidParametersException Check the reference on
-     *  <p>
+     *                                    <p>
      * @see <a https://meshblu-socketio.readme.io/docs/whoami </a>
      */
     //
@@ -459,9 +458,8 @@ final class KnotSocketIo {
      * @param callbackResult Callback for this method
      * @throws KnotException
      * @throws SocketNotConnected
-     * @throws InvalidParametersException
-     *  <p>
-     * Check the reference on @see <a https://meshblu-socketio.readme.io/docs/update</a>
+     * @throws InvalidParametersException <p>
+     *                                    Check the reference on @see <a https://meshblu-socketio.readme.io/docs/update</a>
      */
     public <T extends AbstractThingDevice> void updateDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected, InvalidParametersException {
 
@@ -607,8 +605,7 @@ final class KnotSocketIo {
      * @param typeThing      Generic type of list.
      * @param query          Query to find devices
      * @param callbackResult List of devices
-     * @throws KnotException
-     *  <p>
+     * @throws KnotException <p>
      * @see <ahttps://meshblu-socketio.readme.io/docs/devices </a>
      */
     public <T extends AbstractThingDevice> void getDeviceList(final ThingList<T> typeThing, JSONObject
@@ -736,17 +733,19 @@ final class KnotSocketIo {
 
     /**
      * Set callback to receive message to your device
+     *
      * @param messageEventCallback Callback to receive message
      */
-    public void setCallbackToMessageEvent(final Event<AbstractThingMessage> messageEventCallback){
+    public void setCallbackToMessageEvent(final Event<AbstractThingMessage> messageEventCallback) {
         mOnMessageEventCallback = messageEventCallback;
     }
 
     /**
      * Set callback to capture information of the your device
+     *
      * @param configEventeCallback Callback to receive device information
      */
-    public void setCallbackToConfigEvent(final Event<AbstractThingDevice> configEventeCallback){
+    public void setCallbackToConfigEvent(final Event<AbstractThingDevice> configEventeCallback) {
         mOnConfigEventCallback = configEventeCallback;
     }
 
@@ -760,8 +759,8 @@ final class KnotSocketIo {
         JSONObject deviceInformation = new JSONObject();
 
         try {
-            deviceInformation.put(UUID, device.uuid);
-            deviceInformation.put(TOKEN, device.token);
+            deviceInformation.put(UUID, device.getUuid());
+            deviceInformation.put(TOKEN, device.getToken());
         } catch (JSONException e) {
             e.printStackTrace();
         }

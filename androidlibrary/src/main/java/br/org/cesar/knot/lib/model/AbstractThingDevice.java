@@ -7,6 +7,7 @@
  *
  *
  */
+
 package br.org.cesar.knot.lib.model;
 
 import java.util.ArrayList;
@@ -15,13 +16,7 @@ import java.util.List;
 /**
  * Abstract class that all other devices must extends This class has the common device elements on KNOT
  */
-public abstract class AbstractThingDevice {
-
-    // Device Identification
-    public String uuid;
-
-    // Device Authentication
-    public String token;
+public abstract class AbstractThingDevice extends AbstractDeviceOwner {
 
     // List of UUIDs that have some permissions
     public List<ThingConfiguration> config;
@@ -180,8 +175,8 @@ public abstract class AbstractThingDevice {
     @Override
     public String toString() {
         return "AbstractThingDevice{" +
-                "uuid='" + uuid + '\'' +
-                ", token='" + token + '\'' +
+                "uuid='" + getUuid() + '\'' +
+                ", token='" + getToken() + '\'' +
                 ", config='" + config.toString() + '\'' +
                 '}';
     }
