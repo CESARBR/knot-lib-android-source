@@ -14,10 +14,14 @@ import android.support.annotation.NonNull;
 
 import com.google.gson.JsonElement;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.List;
 
 import br.org.cesar.knot.lib.event.Event;
 import br.org.cesar.knot.lib.exception.InvalidDeviceOwnerStateException;
+import br.org.cesar.knot.lib.exception.InvalidParametersException;
 import br.org.cesar.knot.lib.exception.KnotException;
 import br.org.cesar.knot.lib.exception.SocketNotConnected;
 import br.org.cesar.knot.lib.model.AbstractThingData;
@@ -85,11 +89,221 @@ public class FacadeConnection {
     }
 
     /**
+     * Turns the device belongs to someone. When a device is created in
+     * Meshblu, it is an orphan device. In other words, everyone can made any
+     * changes on this device. After claim a device, only the
+     * owner can delete or update it.
+     * Note: In Meshblu, the owner for one device IS another device.
+     *
+     * @param device         the identifier of device (uuid)
+     * @param callbackResult Callback for this method
+     * @throws KnotException
+     * @throws SocketNotConnected <p>
+     *                            Check the reference on @see <a https://meshblu-socketio.readme.io/docs/unregister</a>
+     */
+    public <T extends AbstractThingDevice> void socketIODeleteDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected {
+        if (socketIO != null && !isSocketConnected()) {
+            socketIO.deleteDevice(device, callbackResult);
+        } else {
+            throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
+        }
+    }
+
+    /**
+     * The API Needs to call this method to authenticate a device with the socket communication.
+     *
+     * @param device         the device
+     * @param callbackResult Callback for this method
+     * @throws KnotException
+     * @throws SocketNotConnected
+     * @throws InvalidParametersException Check the reference on
+     *                                    <p>
+     * @see <a https://meshblu-socketio.readme.io/docs/identity</a>
+     */
+    public <T extends AbstractThingDevice> void socketIOAuthenticateDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected, InvalidParametersException {
+        if (socketIO != null && !isSocketConnected()) {
+            socketIO.authenticateDevice(device, callbackResult);
+        } else {
+            throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
+        }
+    }
+
+    /**
+     * Get all information regarding the device.
+     *
+     * @param callbackResult Callback for this method
+     * @param device         the device
+     * @throws KnotException
+     * @throws SocketNotConnected
+     * @throws InvalidParametersException Check the reference on
+     *                                    <p>
+     * @see <a https://meshblu-socketio.readme.io/docs/whoami </a>
+     */
+    //
+    public <T extends AbstractThingDevice> void socketIOWhoAmI(final T device, final Event<T> callbackResult) throws JSONException, SocketNotConnected, InvalidParametersException {
+        if (socketIO != null && !isSocketConnected()) {
+            socketIO.whoAmI(device, callbackResult);
+        } else {
+            throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
+        }
+
+    }
+
+    /**
+     * Update an existent device
+     *
+     * @param device         the identifier of device (uuid)
+     * @param callbackResult Callback for this method
+     * @throws KnotException
+     * @throws SocketNotConnected
+     * @throws InvalidParametersException <p>
+     *                                    Check the reference on @see <a https://meshblu-socketio.readme.io/docs/update</a>
+     */
+    public <T extends AbstractThingDevice> void socketIOUpdateDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected, InvalidParametersException {
+        if (socketIO != null && !isSocketConnected()) {
+            socketIO.updateDevice(device, callbackResult);
+        } else {
+            throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
+        }
+    }
+
+    /**
+     * Method used to claim a specif device;
+     *
+     * @param device         device Wanted
+     * @param callbackResult Callback for this method
+     * @throws SocketNotConnected
+     * @throws InvalidParametersException
+     * @throws JSONException
+     */
+    public <T extends AbstractThingDevice> void socketIOClaimDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected, InvalidParametersException, JSONException {
+        if (socketIO != null && !isSocketConnected()) {
+            socketIO.claimDevice(device, callbackResult);
+        } else {
+            throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
+        }
+    }
+
+    /**
+     * This method returns a instance of the device
+     *
+     * @param typeClass      The specific genericized type of src.
+     * @param uuid           The device identification to find a device on server
+     * @param callbackResult Callback for this method
+     * @param <T>            the type of the desired object
+     * @throws JSONException
+     */
+    public <T extends AbstractThingDevice> void socketIOGetDevice(final T typeClass, String uuid, final Event<T> callbackResult) throws JSONException, InvalidParametersException, SocketNotConnected {
+        if (socketIO != null && !isSocketConnected()) {
+            socketIO.getDevice(typeClass, uuid, callbackResult);
+        } else {
+            throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
+        }
+    }
+
+    /**
+     * This method return a list devices of the specific owner
+     *
+     * @param typeThing      Generic type of list.
+     * @param query          Query to find devices
+     * @param callbackResult List of devices
+     * @throws KnotException <p>
+     * @see <ahttps://meshblu-socketio.readme.io/docs/devices </a>
+     */
+    public <T extends AbstractThingDevice> void socketIOGetDeviceList(final ThingList<T> typeThing, JSONObject
+            query, final Event<T> callbackResult) throws KnotException, SocketNotConnected, InvalidParametersException {
+        if (socketIO != null && !isSocketConnected()) {
+            socketIO.getDeviceList(typeThing, query, callbackResult);
+        } else {
+            throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
+        }
+    }
+
+    /**
+     * Create data for one device. If the device has an owner, it is necessary that the owner
+     * param be the same of the device owner.
+     *
+     * @param data           data that will be created for device
+     * @param callbackResult Callback for this method
+     * @throws KnotException
+     * @throws SocketNotConnected
+     * @throws InvalidParametersException
+     */
+    public <T extends AbstractThingData> void socketIOCreateData(final String uuid, final T data, final Event<T> callbackResult) throws JSONException, InvalidParametersException, SocketNotConnected {
+        if (socketIO != null && !isSocketConnected()) {
+            socketIO.createData(uuid, data, callbackResult);
+        } else {
+            throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
+        }
+    }
+
+    /**
+     * Get all data of the specific device
+     *
+     * @param type           List of abstracts objects
+     * @param uuid           UUid of device
+     * @param callbackResult Callback for this method
+     * @throws InvalidParametersException
+     * @throws SocketNotConnected
+     */
+    public <T extends AbstractThingData> void socketIOGetData(final ThingList<T> type, String uuid, final Event<List<T>> callbackResult) throws InvalidParametersException, SocketNotConnected {
+        if (socketIO != null && !isSocketConnected()) {
+            socketIO.getData(type, uuid, callbackResult);
+        } else {
+            throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
+        }
+    }
+
+    /**
+     * This method sends a message to a device list of your choice.
+     *
+     * @param message AbstractThingMessage that will be sent
+     * @param <T>     Type of Object
+     * @throws InvalidParametersException
+     * @throws SocketNotConnected
+     * @throws JSONException
+     * @see <a> https://meshblu-socketio.readme.io/docs/message </a>
+     */
+    public <T extends AbstractThingMessage> void socketIOSendMessage(final T message) throws InvalidParametersException, SocketNotConnected, JSONException {
+        if (socketIO != null && !isSocketConnected()) {
+            socketIO.sendMessage(message);
+        } else {
+            throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
+        }
+    }
+
+    /**
+     * Set callback to receive message to your device
+     *
+     * @param messageEventCallback Callback to receive message
+     */
+    public <T extends AbstractThingMessage> void socketIOSetCallbackToMessageEvent(final Event<AbstractThingMessage> messageEventCallback, T classOfT) throws SocketNotConnected {
+        if (socketIO != null && !isSocketConnected()) {
+            socketIO.setCallbackToMessageEvent(messageEventCallback, classOfT);
+        } else {
+            throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
+        }
+    }
+
+    /**
+     * Set callback to capture information of the your device
+     *
+     * @param configEventeCallback Callback to receive device information
+     */
+    public <T extends AbstractThingDevice> void socketIOSetCallbackToConfigEvent(final Event<AbstractThingDevice> configEventeCallback, T classOfT) throws SocketNotConnected {
+        if (socketIO != null && !isSocketConnected()) {
+            socketIO.setCallbackToConfigEvent(configEventeCallback, classOfT);
+        } else {
+            throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
+        }
+    }
+
+    /**
      * Is socket connected boolean.
      *
      * @return the boolean
      */
-    public boolean isSocketConnected() {
+    public synchronized boolean isSocketConnected() {
         if (socketIO != null) {
             return socketIO.isSocketConnected();
         } else {
