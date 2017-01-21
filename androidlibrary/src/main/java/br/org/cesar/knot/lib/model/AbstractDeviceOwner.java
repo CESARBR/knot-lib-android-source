@@ -40,16 +40,16 @@ public class AbstractDeviceOwner {
     }
 
     /**
-     * Gets uuid.
+     * Gets device uuid.
      *
-     * @return the uuid
+     * @return the uuid of device.
      */
     public String getUuid() {
         return uuid;
     }
 
     /**
-     * Sets uuid.
+     * Sets uuid of device .
      *
      * @param uuid the uuid
      */
@@ -58,7 +58,7 @@ public class AbstractDeviceOwner {
     }
 
     /**
-     * Gets token.
+     * Gets device token.
      *
      * @return the token
      */
@@ -67,7 +67,7 @@ public class AbstractDeviceOwner {
     }
 
     /**
-     * Sets token.
+     * Sets device token.
      *
      * @param token the token
      */

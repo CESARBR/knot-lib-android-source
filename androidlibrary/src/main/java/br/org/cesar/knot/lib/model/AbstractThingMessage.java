@@ -44,26 +44,56 @@ public abstract class AbstractThingMessage {
         return devices;
     }
 
+    /**
+     *  Get list of device that will received or sent message.
+     *
+     * @return list of devices in meshblu cloud
+     */
     public List<String> getDevices() {
         return devices;
     }
 
+    /**
+     * Get message value that will received or sent message.
+     *
+     * @return message value.
+     */
     public String getMessage() {
         return message;
     }
 
+    /**
+     * Get time stamp of message will received or sent.
+     *
+     * @return time stamp that message occurred
+     */
     public String getTimestamp() {
         return timestamp;
     }
 
+    /**
+     * Set devices list that will received the message.
+     *
+     * @param devices devices list that will received message.
+     */
     public void setDevices(List<String> devices) {
         this.devices = devices;
     }
 
+    /**
+     * Set message that will send or received.
+     *
+     * @param message
+     */
     public void setMessage(String message) {
         this.message = message;
     }
 
+    /**
+     * Set time stamp that message occurred
+     *
+     * @param timestamp time stamp that message occurred
+     */
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }

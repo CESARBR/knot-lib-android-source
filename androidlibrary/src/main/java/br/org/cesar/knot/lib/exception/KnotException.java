@@ -10,22 +10,47 @@
 
 package br.org.cesar.knot.lib.exception;
 
+import br.org.cesar.knot.lib.connection.FacadeConnection;
+
 /**
- * Wrapper exception raised by {@link ThingApi} in synchronous methods
+ * Wrapper exception raised by {@link FacadeConnection} in synchronous methods
  */
 public class KnotException extends Exception {
 
+    /**
+     * Instantiates a new KnotException. Default constructor.
+     *
+     */
     public KnotException() {
     }
 
+    /**
+     *
+     * Instantiates a new KnotException by message by message.
+     *
+     * @param message message that is pass in exception message.
+     */
     public KnotException(String message) {
         super(message);
     }
 
+    /**
+     *
+     * Instantiates a new KnotException by message and throwable.
+     *
+     * @param message message that is pass in exception message.
+     * @param throwable a generic throwable exception
+     */
     public KnotException(String message, Throwable throwable) {
         super(message, throwable);
     }
 
+    /**
+     *
+     * Instantiates a new KnotException by throwable.
+     *
+     * @param throwable a generic throwable exception
+     */
     public KnotException(Throwable throwable) {
         super(throwable);
     }
