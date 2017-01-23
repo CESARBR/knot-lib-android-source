@@ -25,6 +25,8 @@ public abstract class AbstractThingDevice extends AbstractDeviceOwner {
     private List<String> sendWhitelist;
     private List<String> receiveWhitelist;
 
+    //Another device that is owner of the device
+    public String owner;
 
     /**
      * Constructor of the class

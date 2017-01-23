@@ -32,6 +32,7 @@ import br.org.cesar.knot.lib.event.Event;
 import br.org.cesar.knot.lib.exception.InvalidParametersException;
 import br.org.cesar.knot.lib.exception.KnotException;
 import br.org.cesar.knot.lib.exception.SocketNotConnected;
+import br.org.cesar.knot.lib.model.AbstractDeviceOwner;
 import br.org.cesar.knot.lib.model.AbstractThingData;
 import br.org.cesar.knot.lib.model.AbstractThingDevice;
 import br.org.cesar.knot.lib.model.AbstractThingMessage;
@@ -195,6 +196,11 @@ final class KnotSocketIo {
     private AbstractThingDevice mConfigClass;
 
     /**
+     * Owner that has some permission to work with devices;
+     */
+    private AbstractDeviceOwner mOwner;
+
+    /**
      * Callback used to transmit all modifications to client
      */
     private Event<AbstractThingDevice> mOnConfigEventCallback;
@@ -220,6 +226,7 @@ final class KnotSocketIo {
             mDeviceRegistered = false;
         }
     };
+
 
     /**
      * This event is called when the device receive a neu message
@@ -317,6 +324,8 @@ final class KnotSocketIo {
      */
     public <T extends AbstractThingDevice> void createNewDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected {
         if (isSocketConnected() && device != null) {
+
+            device.owner = mOwner.getUuid();
             mSocket.emit(EVENT_CREATE_DEVICE, device, new Ack() {
                 @Override
                 public void call(Object... args) {
@@ -402,6 +411,9 @@ final class KnotSocketIo {
 
         if (isSocketConnected()) {
             if (device != null && callbackResult != null) {
+
+                mOwner = device;
+
                 String json = mGson.toJson(device);
 
                 JSONObject deviceToAutheticate = null;

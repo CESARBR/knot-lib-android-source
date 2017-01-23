@@ -12,6 +12,7 @@ package br.org.cesar.knot.lib.connection;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.google.gson.Gson;
@@ -62,11 +63,15 @@ final class ThingApi {
     private final String mEndPoint;
     private AbstractDeviceOwner abstractDeviceOwner;
 
-    public ThingApi(String endPoint) {
+    public ThingApi(String endPoint, String owner_uuid, String owner_token) {
         mMainHandler = new Handler(Looper.getMainLooper());
         mHttpClient = new OkHttpClient();
         mGson = new Gson();
         mEndPoint = endPoint;
+
+        abstractDeviceOwner = new AbstractDeviceOwner();
+        abstractDeviceOwner.setUuid(owner_uuid);
+        abstractDeviceOwner.setToken(owner_token);
     }
 
     /**
@@ -90,6 +95,7 @@ final class ThingApi {
      */
     public <T extends AbstractThingDevice> T createDevice(T device) throws KnotException {
         final String endPoint = mEndPoint + DEVICE_PATH;
+        device.owner = abstractDeviceOwner.getUuid();
         String json = mGson.toJson(device);
         RequestBody body = createRequestBodyWith(json);
         Request request = generateBasicRequestBuild(endPoint).post(body).build();
@@ -100,12 +106,6 @@ final class ThingApi {
             // Retrieve the result of web service
             final T responseData = (T) mGson.fromJson(response.body().string(), device.getClass());
 
-            // Create a new AbstractOwner if the data received if not null
-            if (responseData != null
-                    && !TextUtils.isEmpty(responseData.getUuid())
-                    && !TextUtils.isEmpty(responseData.getToken())) {
-                this.abstractDeviceOwner = new AbstractDeviceOwner(responseData.getUuid(), responseData.getToken());
-            }
             //Return the data sent by web server
             return responseData;
         } catch (Exception e) {

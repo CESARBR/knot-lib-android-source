@@ -345,8 +345,8 @@ public class FacadeConnection {
      *
      * @param endPoint the end point
      */
-    public void setupHttp(@NonNull String endPoint) {
-        thingApi = new ThingApi(endPoint);
+    public void setupHttp(@NonNull String endPoint,@NonNull String ownerUuid,@NonNull String ownerToken) {
+        thingApi = new ThingApi(endPoint, ownerUuid, ownerToken);
     }
 
     /**
