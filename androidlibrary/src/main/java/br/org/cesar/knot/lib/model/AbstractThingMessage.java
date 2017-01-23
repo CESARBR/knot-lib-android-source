@@ -10,6 +10,7 @@
 
 package br.org.cesar.knot.lib.model;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -24,6 +25,7 @@ public abstract class AbstractThingMessage {
     private String timestamp;
 
     public AbstractThingMessage(){
+        devices = new ArrayList<>();
     }
 
     @Override

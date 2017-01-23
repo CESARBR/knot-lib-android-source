@@ -26,6 +26,7 @@ import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.List;
 
 import br.org.cesar.knot.lib.event.Event;
@@ -290,7 +291,7 @@ final class ThingApi {
      * @return an json element containing device informations
      * @throws KnotException KnotException
      */
-    public <T extends JsonElement> T whoAmI(Class<T> clazz) throws InvalidDeviceOwnerStateException, KnotException {
+    public <T extends AbstractThingDevice> T whoAmI(Class<T> clazz) throws InvalidDeviceOwnerStateException, KnotException {
         // Check if the current state of device owner is valid
         if (!isValidDeviceOwner()) {
             throw new InvalidDeviceOwnerStateException("The device owner is invalid or null");
@@ -319,7 +320,7 @@ final class ThingApi {
      * @return an object based on the class parameter
      */
 
-    public <T extends JsonElement> void whoAmI(final Class<T> clazz, final Event<T> callback) {
+    public <T extends AbstractThingDevice> void whoAmI(final Class<T> clazz, final Event<T> callback) {
         new Thread() {
             @Override
             public void run() {
@@ -454,7 +455,7 @@ final class ThingApi {
      * @return a List with all devices those belongs to the owner
      * @throws KnotException KnotException
      */
-    public <T extends AbstractThingDevice> List<T> getDeviceList(final ThingList<T> type) throws InvalidDeviceOwnerStateException, KnotException {
+    public <T extends AbstractThingDevice> List<T> getDeviceList(final List<T> type) throws InvalidDeviceOwnerStateException, KnotException {
         // Check if the current state of device owner is valid
         if (!isValidDeviceOwner()) {
             throw new InvalidDeviceOwnerStateException("The device owner is invalid or null");
@@ -471,21 +472,21 @@ final class ThingApi {
             }
             JsonElement jsonElement = new JsonParser().parse(response.body().string());
             JsonArray jsonArray = jsonElement.getAsJsonObject().getAsJsonArray(JSON_DEVICES);
-            return mGson.fromJson(jsonArray.toString(), type);
+            return mGson.fromJson(jsonArray.toString(),type.getClass());
         } catch (Exception e) {
             throw new KnotException(e);
         }
     }
 
     /**
-     * Async version of {@link #getDeviceList(ThingList)}
+     * Async version of {@link #getDeviceList(List<T>)}
      *
      * @param type     object that will define what elements will returned by this method
      * @param callback callback
      * @return a List with all devices those belongs to the owner
      * @throws KnotException KnotException
      */
-    public <T extends AbstractThingDevice> void getDeviceList(final ThingList<T> type, final Event<List<T>> callback) {
+    public <T extends AbstractThingDevice> void getDeviceList(final List<T> type, final Event<List<T>> callback) {
         new Thread() {
             @Override
             public void run() {
@@ -560,7 +561,7 @@ final class ThingApi {
      * @return a List with data of the device
      * @throws KnotException KnotException
      */
-    public <T extends AbstractThingData> List<T> getDataList(String device, final ThingList<T> type) throws InvalidDeviceOwnerStateException, KnotException {
+    public <T extends AbstractThingData> List<T> getDataList(String device, final List<T> type) throws InvalidDeviceOwnerStateException, KnotException {
         // Check if the current state of device owner is valid
         if (!isValidDeviceOwner()) {
             throw new InvalidDeviceOwnerStateException("The device owner is invalid or null");
@@ -575,24 +576,24 @@ final class ThingApi {
             JsonArray jsonArray = jsonElement.getAsJsonObject().getAsJsonArray(JSON_DATA);
 
             if (jsonArray == null || jsonArray.size() == 0) {
-                return mGson.fromJson(EMPTY_ARRAY, type);
+                return mGson.fromJson(EMPTY_ARRAY, type.getClass());
             }
 
-            return mGson.fromJson(jsonArray.toString(), type);
+            return mGson.fromJson(jsonArray.toString(), type.getClass());
         } catch (Exception e) {
             throw new KnotException(e);
         }
     }
 
     /**
-     * Async version of {@link #getDataList(String, ThingList)}
+     * Async version of {@link #getDataList(String, List<T>)}
      *
      * @param device   the device identifier (uuid)
      * @param type     object that will define what elements will returned by this method
      * @param callback Callback for this method
      * @return a List with data of the device
      */
-    public <T extends AbstractThingData> void getDataList(final String device, final ThingList<T> type, final Event<List<T>> callback) {
+    public <T extends AbstractThingData> void getDataList(final String device, final List<T> type, final Event<List<T>> callback) {
         new Thread() {
             @Override
             public void run() {

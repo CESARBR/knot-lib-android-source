@@ -487,7 +487,7 @@ public class FacadeConnection {
      * @return a boolean to indicate if the device was deleted
      * @throws KnotException
      */
-    public boolean httpDdeleteDevice(String device) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
+    public boolean httpDeleteDevice(String device) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
         if (thingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
@@ -518,7 +518,7 @@ public class FacadeConnection {
      * @return an json element containing device informations
      * @throws KnotException
      */
-    public <T extends JsonElement> T httpWhoAmI(Class<T> clazz) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
+    public <T extends AbstractThingDevice> T httpWhoAmI(Class<T> clazz) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
         if (thingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
@@ -536,7 +536,7 @@ public class FacadeConnection {
      * @return an object based on the class parameter
      */
 
-    public <T extends JsonElement> void httpWhoAmI(final Class<T> clazz, final Event<T> callback) throws IllegalStateException {
+    public <T extends AbstractThingDevice> void httpWhoAmI(final Class<T> clazz, final Event<T> callback) throws IllegalStateException {
         if (thingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
@@ -623,7 +623,7 @@ public class FacadeConnection {
      * @return a List with all devices those belongs to the owner
      * @throws KnotException
      */
-    public <T extends AbstractThingDevice> List<T> httpGetDeviceList(final ThingList<T> type) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
+    public <T extends AbstractThingDevice> List<T> httpGetDeviceList(final List<T> type) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
         if (thingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
@@ -632,14 +632,14 @@ public class FacadeConnection {
     }
 
     /**
-     * Async version of {@link #httpGetDeviceList(ThingList)}
+     * Async version of {@link #httpGetDeviceList(List<T>)}
      *
      * @param type     object that will define what elements will returned by this method
      * @param callback
      * @return a List with all devices those belongs to the owner
      * @throws KnotException KnotException
      */
-    public <T extends AbstractThingDevice> void httpGetDeviceList(final ThingList<T> type, final Event<List<T>> callback) throws IllegalStateException {
+    public <T extends AbstractThingDevice> void httpGetDeviceList(final List<T> type, final Event<List<T>> callback) throws IllegalStateException {
         if (thingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
@@ -687,7 +687,7 @@ public class FacadeConnection {
      * @return a List with data of the device
      * @throws KnotException
      */
-    public <T extends AbstractThingData> List<T> httpGetDataList(String device, final ThingList<T> type) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
+    public <T extends AbstractThingData> List<T> httpGetDataList(String device, final List<T> type) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
         if (thingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
@@ -696,14 +696,14 @@ public class FacadeConnection {
     }
 
     /**
-     * Async version of {@link #httpGetDataList(String, ThingList)}
+     * Async version of {@link #httpGetDataList(String, List<T>)}
      *
      * @param device   the device identifier (uuid)
      * @param type     object that will define what elements will returned by this method
      * @param callback Callback for this method
      * @return a List with data of the device
      */
-    public <T extends AbstractThingData> void httpGetDataList(final String device, final ThingList<T> type, final Event<List<T>> callback) throws IllegalStateException {
+    public <T extends AbstractThingData> void httpGetDataList(final String device, final List<T> type, final Event<List<T>> callback) throws IllegalStateException {
         if (thingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
@@ -720,7 +720,7 @@ public class FacadeConnection {
      * @throws KnotException
      * @see AbstractThingMessage
      */
-    public <T extends AbstractThingMessage> T httpSendMessage(String owner, String token, T message) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
+    public <T extends AbstractThingMessage> T httpSendMessage(T message) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
         if (thingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
@@ -743,5 +743,6 @@ public class FacadeConnection {
             thingApi.sendMessage(message, callback);
         }
     }
+
 
 }
