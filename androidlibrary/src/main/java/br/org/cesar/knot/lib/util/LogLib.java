@@ -23,7 +23,7 @@ public class LogLib {
     private static final String TAG = "knot_android_lib";
 
     /**
-     * Print the given message
+     * Log print the given message
      *
      * @param message the message
      */
@@ -34,7 +34,7 @@ public class LogLib {
     }
 
     /**
-     * Print e.
+     * Log print error with message.
      *
      * @param message the message
      * @param error   the error
@@ -47,7 +47,7 @@ public class LogLib {
 
 
     /**
-     * Print e.
+     * Log print error with message and throwable.
      *
      * @param error the error
      */

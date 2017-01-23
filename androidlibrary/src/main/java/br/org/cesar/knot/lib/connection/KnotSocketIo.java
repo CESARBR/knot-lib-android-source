@@ -274,7 +274,7 @@ final class KnotSocketIo {
     }
 
     /**
-     * Open a new mSocket with the meshblus
+     * Open a new mSocket with the meshblu
      *
      * @param endPoint endpoint of gateway
      * @throws SocketNotConnected if its not possible to open a mSocket
