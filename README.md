@@ -1,3 +1,12 @@
+## KNOT Android library
+
+1. This lib is a part of KNOT solution (for more information: https://github.com/CESARBR) and has aims to provide abstractions for Android application create owner IoT (Internet of Things) solution in KNOT platform by HTTP protocol and via SocketIO.
+
+## knot-lib-android-source Goals
+1. Provide abstraction to connect with KNOT cloud by HTTP or SocketIO, it is possible to cofigure with specific cloud, CRUD of devices, send messages and others.
+
+2. For more information about KNOT solution see: http://knot.cesar.org.br/
+
 ## Generated .aar file of knot_lib
 
 1. In root directory project run command: **./gradlew clean aR** to generated this file.
