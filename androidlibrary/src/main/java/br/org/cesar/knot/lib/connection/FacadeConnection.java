@@ -68,8 +68,8 @@ public class FacadeConnection {
      * @param baseUrl the base url
      * @throws SocketNotConnected the socket not connected
      */
-    public synchronized void setupSocketIO(@NonNull String baseUrl) throws SocketNotConnected {
-        socketIO = new KnotSocketIo(baseUrl);
+    public synchronized void setupSocketIO(@NonNull String baseUrl , @NonNull String uuidOwner, @NonNull String tokenOwner) throws SocketNotConnected {
+        socketIO = new KnotSocketIo(baseUrl,uuidOwner,tokenOwner);
     }
 
     /**
@@ -81,7 +81,7 @@ public class FacadeConnection {
      * @throws SocketNotConnected the socket not connected
      */
     public synchronized <T extends AbstractThingDevice> void socketIOCreateNewDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected {
-        if (socketIO != null && !isSocketConnected()) {
+        if (socketIO != null && isSocketConnected()) {
             socketIO.createNewDevice(device, callbackResult);
         } else {
             throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
@@ -102,7 +102,7 @@ public class FacadeConnection {
      *                            Check the reference on @see <a https://meshblu-socketio.readme.io/docs/unregister</a>
      */
     public <T extends AbstractThingDevice> void socketIODeleteDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected {
-        if (socketIO != null && !isSocketConnected()) {
+        if (socketIO != null && isSocketConnected()) {
             socketIO.deleteDevice(device, callbackResult);
         } else {
             throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
@@ -112,7 +112,6 @@ public class FacadeConnection {
     /**
      * The API Needs to call this method to authenticate a device with the socket communication.
      *
-     * @param device         the device
      * @param callbackResult Callback for this method
      * @throws KnotException
      * @throws SocketNotConnected
@@ -120,9 +119,9 @@ public class FacadeConnection {
      *                                    <p>
      * @see <a https://meshblu-socketio.readme.io/docs/identity</a>
      */
-    public <T extends AbstractThingDevice> void socketIOAuthenticateDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected, InvalidParametersException {
-        if (socketIO != null && !isSocketConnected()) {
-            socketIO.authenticateDevice(device, callbackResult);
+    public <T extends AbstractThingDevice> void socketIOAuthenticateDevice(final Event<Boolean> callbackResult) throws SocketNotConnected, InvalidParametersException {
+        if (socketIO != null && isSocketConnected()) {
+            socketIO.authenticateDevice(callbackResult);
         } else {
             throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
         }
@@ -141,7 +140,7 @@ public class FacadeConnection {
      */
     //
     public <T extends AbstractThingDevice> void socketIOWhoAmI(final T device, final Event<T> callbackResult) throws JSONException, SocketNotConnected, InvalidParametersException {
-        if (socketIO != null && !isSocketConnected()) {
+        if (socketIO != null && isSocketConnected()) {
             socketIO.whoAmI(device, callbackResult);
         } else {
             throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
@@ -160,7 +159,7 @@ public class FacadeConnection {
      *                                    Check the reference on @see <a https://meshblu-socketio.readme.io/docs/update</a>
      */
     public <T extends AbstractThingDevice> void socketIOUpdateDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected, InvalidParametersException {
-        if (socketIO != null && !isSocketConnected()) {
+        if (socketIO != null && isSocketConnected()) {
             socketIO.updateDevice(device, callbackResult);
         } else {
             throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
@@ -176,8 +175,8 @@ public class FacadeConnection {
      * @throws InvalidParametersException
      * @throws JSONException
      */
-    public <T extends AbstractThingDevice> void socketIOClaimDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected, InvalidParametersException, JSONException {
-        if (socketIO != null && !isSocketConnected()) {
+    public <T extends AbstractThingDevice> void socketIOClaimDevice(final T device, final Event<Boolean> callbackResult) throws SocketNotConnected, InvalidParametersException, JSONException {
+        if (socketIO != null && isSocketConnected()) {
             socketIO.claimDevice(device, callbackResult);
         } else {
             throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
@@ -194,7 +193,7 @@ public class FacadeConnection {
      * @throws JSONException
      */
     public <T extends AbstractThingDevice> void socketIOGetDevice(final T typeClass, String uuid, final Event<T> callbackResult) throws JSONException, InvalidParametersException, SocketNotConnected {
-        if (socketIO != null && !isSocketConnected()) {
+        if (socketIO != null && isSocketConnected()) {
             socketIO.getDevice(typeClass, uuid, callbackResult);
         } else {
             throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
@@ -212,7 +211,7 @@ public class FacadeConnection {
      */
     public <T extends AbstractThingDevice> void socketIOGetDeviceList(final ThingList<T> typeThing, JSONObject
             query, final Event<T> callbackResult) throws KnotException, SocketNotConnected, InvalidParametersException {
-        if (socketIO != null && !isSocketConnected()) {
+        if (socketIO != null && isSocketConnected()) {
             socketIO.getDeviceList(typeThing, query, callbackResult);
         } else {
             throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
@@ -230,7 +229,7 @@ public class FacadeConnection {
      * @throws InvalidParametersException
      */
     public <T extends AbstractThingData> void socketIOCreateData(final String uuid, final T data, final Event<T> callbackResult) throws JSONException, InvalidParametersException, SocketNotConnected {
-        if (socketIO != null && !isSocketConnected()) {
+        if (socketIO != null && isSocketConnected()) {
             socketIO.createData(uuid, data, callbackResult);
         } else {
             throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
@@ -247,7 +246,7 @@ public class FacadeConnection {
      * @throws SocketNotConnected
      */
     public <T extends AbstractThingData> void socketIOGetData(final ThingList<T> type, String uuid, final Event<List<T>> callbackResult) throws InvalidParametersException, SocketNotConnected {
-        if (socketIO != null && !isSocketConnected()) {
+        if (socketIO != null && isSocketConnected()) {
             socketIO.getData(type, uuid, callbackResult);
         } else {
             throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
@@ -265,7 +264,7 @@ public class FacadeConnection {
      * @see <a> https://meshblu-socketio.readme.io/docs/message </a>
      */
     public <T extends AbstractThingMessage> void socketIOSendMessage(final T message) throws InvalidParametersException, SocketNotConnected, JSONException {
-        if (socketIO != null && !isSocketConnected()) {
+        if (socketIO != null && isSocketConnected()) {
             socketIO.sendMessage(message);
         } else {
             throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
@@ -278,7 +277,7 @@ public class FacadeConnection {
      * @param messageEventCallback Callback to receive message
      */
     public <T extends AbstractThingMessage> void socketIOSetCallbackToMessageEvent(final Event<AbstractThingMessage> messageEventCallback, T classOfT) throws SocketNotConnected {
-        if (socketIO != null && !isSocketConnected()) {
+        if (socketIO != null && isSocketConnected()) {
             socketIO.setCallbackToMessageEvent(messageEventCallback, classOfT);
         } else {
             throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
@@ -291,7 +290,7 @@ public class FacadeConnection {
      * @param configEventeCallback Callback to receive device information
      */
     public <T extends AbstractThingDevice> void socketIOSetCallbackToConfigEvent(final Event<AbstractThingDevice> configEventeCallback, T classOfT) throws SocketNotConnected {
-        if (socketIO != null && !isSocketConnected()) {
+        if (socketIO != null && isSocketConnected()) {
             socketIO.setCallbackToConfigEvent(configEventeCallback, classOfT);
         } else {
             throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
@@ -321,7 +320,6 @@ public class FacadeConnection {
     public void connectSocket(@NonNull String endPoint) throws SocketNotConnected {
         disconnectSocket();
         if (socketIO == null) {
-            setupSocketIO(endPoint);
             socketIO.connect(endPoint);
         }
     }

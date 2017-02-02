@@ -11,6 +11,7 @@
 package br.org.cesar.knot.lib.connection;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Ack;
@@ -26,6 +27,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
+import java.security.acl.Owner;
 import java.util.List;
 
 import br.org.cesar.knot.lib.event.Event;
@@ -206,6 +208,11 @@ final class KnotSocketIo {
     private Event<AbstractThingDevice> mOnConfigEventCallback;
 
     /**
+     * Callback used to transmit all modifications to client
+     */
+    private Event<Boolean> mAuthenticateEventCallback;
+
+    /**
      * This event is called when the server response if the device was registered
      */
     private Emitter.Listener onReady = new Emitter.Listener() {
@@ -213,6 +220,7 @@ final class KnotSocketIo {
         @Override
         public void call(Object... args) {
             mDeviceRegistered = true;
+            mAuthenticateEventCallback.onEventFinish(true);
         }
     };
 
@@ -224,6 +232,7 @@ final class KnotSocketIo {
         @Override
         public void call(Object... args) {
             mDeviceRegistered = false;
+            mAuthenticateEventCallback.onEventError(new KnotException(args.toString()));
         }
     };
 
@@ -261,8 +270,11 @@ final class KnotSocketIo {
      * @param endPoint the end point
      * @throws SocketNotConnected the mSocket not connected
      */
-    public KnotSocketIo(@NonNull String endPoint) throws SocketNotConnected {
+    public KnotSocketIo(@NonNull String endPoint, @NonNull String uuidOwner, @NonNull String token ) throws SocketNotConnected {
         this();
+        mOwner = new AbstractDeviceOwner();
+        mOwner.setUuid(uuidOwner);
+        mOwner.setToken(token);
         connect(endPoint);
     }
 
@@ -333,7 +345,7 @@ final class KnotSocketIo {
                     if (callbackResult != null) {
                         Object firstPosition;
                         if ((firstPosition = args[FIRST_EVENT_RECEIVED]) != null) {
-                            final String json = (String) firstPosition;
+                            final String json = firstPosition.toString();
                             final T result = (T) mGson.fromJson(json, device.getClass());
 
                             //call the callback
@@ -399,7 +411,6 @@ final class KnotSocketIo {
     /**
      * The API Needs to call this method to authenticate a device with the socket communication.
      *
-     * @param device         the device
      * @param callbackResult Callback for this method
      * @throws KnotException
      * @throws SocketNotConnected
@@ -407,14 +418,14 @@ final class KnotSocketIo {
      *                                    <p>
      * @see <a https://meshblu-socketio.readme.io/docs/identity</a>
      */
-    public <T extends AbstractThingDevice> void authenticateDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected, InvalidParametersException {
+    public <T extends AbstractThingDevice> void authenticateDevice(final Event<Boolean> callbackResult) throws SocketNotConnected, InvalidParametersException {
 
         if (isSocketConnected()) {
-            if (device != null && callbackResult != null) {
+            if (mOwner != null && callbackResult != null) {
 
-                mOwner = device;
+                mAuthenticateEventCallback = callbackResult;
 
-                String json = mGson.toJson(device);
+                String json = mGson.toJson(mOwner);
 
                 JSONObject deviceToAutheticate = null;
                 try {
@@ -536,7 +547,7 @@ final class KnotSocketIo {
      * @throws InvalidParametersException
      * @throws JSONException
      */
-    public <T extends AbstractThingDevice> void claimDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected, InvalidParametersException, JSONException {
+    public <T extends AbstractThingDevice> void claimDevice(final T device, final Event<Boolean> callbackResult) throws SocketNotConnected, InvalidParametersException, JSONException {
 
         if (isSocketConnected() && isSocketRegistered()) {
             if (device != null && callbackResult != null) {
@@ -649,7 +660,7 @@ final class KnotSocketIo {
                             }
                             callbackResult.onEventFinish((T) result);
                         } catch (Exception e) {
-                            callbackResult.onEventError();
+                            callbackResult.onEventError(new KnotException(e));
                         }
                     }
                 });
@@ -687,7 +698,7 @@ final class KnotSocketIo {
                         if (args != null && args.length == 0) {
                             callbackResult.onEventFinish(data);
                         } else {
-                            callbackResult.onEventError();
+                            callbackResult.onEventError(new KnotException("Invalid response"));
                         }
                     }
                 });
@@ -824,12 +835,17 @@ final class KnotSocketIo {
      */
     private <T extends AbstractThingDevice> void parserToConfig(String json) {
 
-        if (json != null) {
-            T result = (T) mGson.fromJson(json, mConfigClass.getClass());
+        try {
+            if (json != null) {
+                T result = (T) mGson.fromJson(json, AbstractThingDevice.class);
 
-            if (result != null) {
-                mOnConfigEventCallback.onEventFinish(result);
+                if (result != null) {
+                    mOnConfigEventCallback.onEventFinish(result);
+                }
             }
+
+        }catch (Exception e){
+          LogLib.printD(e.getMessage());
         }
     }
 

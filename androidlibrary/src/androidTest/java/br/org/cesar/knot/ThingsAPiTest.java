@@ -12,7 +12,6 @@ package br.org.cesar.knot;
 
 import android.support.annotation.NonNull;
 import android.test.AndroidTestCase;
-import android.util.Log;
 
 import junit.framework.Assert;
 
@@ -25,7 +24,6 @@ import br.org.cesar.knot.lib.exception.KnotException;
 import br.org.cesar.knot.lib.model.AbstractThingData;
 import br.org.cesar.knot.lib.model.AbstractThingDevice;
 import br.org.cesar.knot.lib.model.AbstractThingMessage;
-import br.org.cesar.knot.lib.model.ThingList;
 
 
 /**
