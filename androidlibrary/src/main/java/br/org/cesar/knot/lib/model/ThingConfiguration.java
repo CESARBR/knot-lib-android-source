@@ -1,11 +1,13 @@
 /*
- * Copyright (c) 2016, CESAR.
+ * Copyright (c) 2017, CESAR.
  * All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the BSD license. See the LICENSE file for details.
  *
+ *
  */
+
 package br.org.cesar.knot.lib.model;
 
 /**
@@ -26,24 +28,51 @@ public class ThingConfiguration {
     private Long upper_limit;
     private transient boolean change;
 
+    /**
+     * Default constructor of ThingConfiguration.
+     */
     public ThingConfiguration() {
 
     }
 
+    /**
+     * Get sensor ID value of thing configuration.
+     *
+     * @return sensor id value.
+     */
     public long getSensorId() {
         return sensor_id;
     }
 
+    /**
+     * Set sensorId value of thing configuration.
+     *
+     * @param sensorId sensor id value.
+     *
+     * @return ThingConfiguration instance.
+     */
     public ThingConfiguration setSensorId(long sensorId) {
         this.sensor_id = sensorId;
         calculateEventFlag();
         return this;
     }
 
+    /**
+     * Get time sec value of thing configuration.
+     *
+     * @return time sec value.
+     */
     public long getTimeSec() {
         return time_sec;
     }
 
+    /**
+     * Set timeSec value of thing configuration.
+     *
+     * @param timeSec time sec value.
+     *
+     * @return ThingConfiguration instance.
+     */
     public ThingConfiguration setTimeSec(long timeSec) {
         this.time_sec = timeSec;
         calculateEventFlag();
@@ -51,10 +80,22 @@ public class ThingConfiguration {
         return this;
     }
 
+    /**
+     * Get lower limit value of thing configuration.
+     *
+     * @return the lower limit value.
+     */
     public long getLowerLimit() {
         return lower_limit;
     }
 
+    /**
+     * Set lowerLimit value of thing configuration.
+     *
+     * @param lowerLimit lowerLimit value.
+     *
+     * @return ThingConfiguration instance.
+     */
     public ThingConfiguration setLowerLimit(long lowerLimit) {
         this.lower_limit = lowerLimit;
         calculateEventFlag();
@@ -62,10 +103,22 @@ public class ThingConfiguration {
         return this;
     }
 
+    /**
+     * Get upper limit value of thing configuration.
+     *
+     * @return the upper limit value.
+     */
     public long getUpperLimit() {
         return upper_limit;
     }
 
+    /**
+     * Set upperLimit value of thing configuration.
+     *
+     * @param upperLimit upperLimit value.
+     *
+     * @return ThingConfiguration instance.
+     */
     public ThingConfiguration setUpperLimit(long upperLimit) {
         this.upper_limit = upperLimit;
         calculateEventFlag();
@@ -73,10 +126,22 @@ public class ThingConfiguration {
         return this;
     }
 
+    /**
+     * Get upper limit value of thing configuration.
+     *
+     * @return true if user change configuration or false otherwise.
+     */
     public boolean isChange() {
         return change;
     }
 
+    /**
+     * Set if has change configuration.
+     *
+     * @param change value if configuration change or not.
+     *
+     * @return ThingConfiguration instance.
+     */
     public ThingConfiguration setChange(boolean change) {
         this.change = change;
         calculateEventFlag();

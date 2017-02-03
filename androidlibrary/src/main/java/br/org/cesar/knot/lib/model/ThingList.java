@@ -1,12 +1,14 @@
 /*
- * Copyright (c) 2016, CESAR.
+ * Copyright (c) 2017, CESAR.
  * All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the BSD license. See the LICENSE file for details.
  *
+ *
  */
-package br.org.cesar.knot.lib;
+
+package br.org.cesar.knot.lib.model;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
