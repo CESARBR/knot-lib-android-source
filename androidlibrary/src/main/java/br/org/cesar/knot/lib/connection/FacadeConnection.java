@@ -27,6 +27,7 @@ import br.org.cesar.knot.lib.exception.SocketNotConnected;
 import br.org.cesar.knot.lib.model.AbstractThingData;
 import br.org.cesar.knot.lib.model.AbstractThingDevice;
 import br.org.cesar.knot.lib.model.AbstractThingMessage;
+import br.org.cesar.knot.lib.model.KnotQueryDateData;
 import br.org.cesar.knot.lib.model.ThingList;
 
 /**
@@ -80,7 +81,7 @@ public class FacadeConnection {
      * @param callbackResult the callback result
      * @throws SocketNotConnected the socket not connected
      */
-    public synchronized <T extends AbstractThingDevice> void socketIOCreateNewDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected {
+    public synchronized <T extends AbstractThingDevice> void socketIOCreateNewDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected, JSONException {
         if (socketIO != null && isSocketConnected()) {
             socketIO.createNewDevice(device, callbackResult);
         } else {
@@ -241,13 +242,16 @@ public class FacadeConnection {
      *
      * @param type           List of abstracts objects
      * @param uuid           UUid of device
+     * @param deviceToken    token of the device
+     * @param knotQueryDateDataStart Start date query
+     * @param knotQueryDateDataStart Finish Date query
      * @param callbackResult Callback for this method
      * @throws InvalidParametersException
      * @throws SocketNotConnected
      */
-    public <T extends AbstractThingData> void socketIOGetData(final ThingList<T> type, String uuid, final Event<List<T>> callbackResult) throws InvalidParametersException, SocketNotConnected {
+    public <T extends AbstractThingData> void socketIOGetData(final ThingList<T> type, String uuid,String deviceToken, KnotQueryDateData knotQueryDateDataStart, KnotQueryDateData knotQueryDateDataFinish, final Event<List<T>> callbackResult) throws InvalidParametersException, SocketNotConnected {
         if (socketIO != null && isSocketConnected()) {
-            socketIO.getData(type, uuid, callbackResult);
+            socketIO.getData(type, uuid,deviceToken,knotQueryDateDataStart,knotQueryDateDataFinish, callbackResult);
         } else {
             throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
         }
