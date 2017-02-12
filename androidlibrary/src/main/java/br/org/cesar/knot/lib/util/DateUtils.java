@@ -18,6 +18,9 @@ import br.org.cesar.knot.lib.model.KnotQueryDateData;
 
 public class DateUtils {
 
+    private static String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+    private static int FIX_MONTH_ANDROID_ERROR = 1;
+
     /**
      * Convert  knotQueryDateData in a compatible date
      * @param knotQueryDateData the query
@@ -27,14 +30,14 @@ public class DateUtils {
         Calendar calendar = Calendar.getInstance();
 
         calendar.set(Calendar.YEAR, knotQueryDateData.getYear());
-        calendar.set(Calendar.MONTH, knotQueryDateData.getMonth()-1);
+        calendar.set(Calendar.MONTH, knotQueryDateData.getMonth()- FIX_MONTH_ANDROID_ERROR);
         calendar.set(Calendar.DAY_OF_MONTH, knotQueryDateData.getDay());
         calendar.set(Calendar.HOUR, knotQueryDateData.getHour());
         calendar.set(Calendar.MINUTE, knotQueryDateData.getMinute());
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
         Date currenTimeZone = (Date) calendar.getTime();
         String time = sdf.format(currenTimeZone);
 
