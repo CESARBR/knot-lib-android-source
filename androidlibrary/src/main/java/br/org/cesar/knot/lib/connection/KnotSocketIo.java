@@ -760,8 +760,14 @@ final class KnotSocketIo {
                 try {
                     dataToSend.put(UUID, uuid);
                     dataToSend.put(TOKEN, deviceToken);
-                    dataToSend.put(DATE_START, DateUtils.getTimeStamp(knotQueryDateDataStart));
-                    dataToSend.put(DATE_FINISH, DateUtils.getTimeStamp(knotQueryDateDataFinish));
+
+                    if(knotQueryDateDataStart!=null){
+                        dataToSend.put(DATE_START, DateUtils.getTimeStamp(knotQueryDateDataStart));
+                    }
+
+                    if(knotQueryDateDataFinish !=null){
+                        dataToSend.put(DATE_FINISH, DateUtils.getTimeStamp(knotQueryDateDataFinish));
+                    }
                 } catch (JSONException e) {
                     callbackResult.onEventError(new KnotException());
                 }

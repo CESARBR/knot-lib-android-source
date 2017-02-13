@@ -20,13 +20,17 @@ public class KnotQueryDateData {
     private int mDay;
     private int mHour;
     private int mMinute;
+    private int mSecond;
+    private int mMillisecond;
 
-    public KnotQueryDateData(int mYear, int mMonth, int mDay, int mHour, int mMinute) {
+    public KnotQueryDateData(int mYear, int mMonth, int mDay, int mHour, int mMinute, int second, int millisecond) {
         this.mYear = mYear;
         this.mMonth = mMonth;
         this.mDay = mDay;
         this.mHour = mHour;
         this.mMinute = mMinute;
+        this.mSecond = second;
+        this.mMillisecond = millisecond;
     }
 
     public int getYear() {
@@ -67,5 +71,21 @@ public class KnotQueryDateData {
 
     public void setMinute(int minute) {
         this.mMinute = minute;
+    }
+
+    public int getSecond() {
+        return mSecond;
+    }
+
+    public void setSecond(int second) {
+        this.mSecond = second;
+    }
+
+    public int getMillisecond() {
+        return mMillisecond;
+    }
+
+    public void setMillisecond(int millisecond) {
+        this.mMillisecond = millisecond;
     }
 }
