@@ -350,12 +350,11 @@ final class KnotSocketIo {
     public <T extends AbstractThingDevice> void createNewDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected, JSONException {
         if (isSocketConnected() && device != null) {
 
-            device.owner = mOwner.getUuid();
+//            device.owner = mOwner.getUuid();
             String json = mGson.toJson(device);
 
             JSONObject deviceToSend = new JSONObject(json);
 
-            device.owner = mOwner.getUuid();
             mSocket.emit(EVENT_CREATE_DEVICE, deviceToSend, new Ack() {
                 @Override
                 public void call(Object... args) {
@@ -659,10 +658,14 @@ final class KnotSocketIo {
      * @throws KnotException <p>
      * @see <ahttps://meshblu-socketio.readme.io/docs/devices </a>
      */
-    public <T extends AbstractThingDevice> void getDeviceList(final ThingList<T> typeThing, JSONObject
-            query, final Event<T> callbackResult) throws KnotException, SocketNotConnected, InvalidParametersException {
+    public <T extends AbstractThingDevice> void getDeviceList(final List<T> typeThing, JSONObject
+            query, final Event<List<T>> callbackResult) throws KnotException, SocketNotConnected, InvalidParametersException {
         if (isSocketConnected() && isSocketRegistered()) {
-            if (typeThing != null && query != null && callbackResult != null) {
+            if (typeThing != null && callbackResult != null) {
+
+                if(query == null){
+                    query = new JSONObject();
+                }
 
                 mSocket.emit(EVENT_GET_DEVICES, query, new Ack() {
                     @Override
@@ -670,13 +673,21 @@ final class KnotSocketIo {
                         List<T> result = null;
                         try {
                             JsonElement jsonElement = new JsonParser().parse(args[FIRST_EVENT_RECEIVED].toString());
-                            JsonArray jsonArray = jsonElement.getAsJsonObject().getAsJsonArray(DEVICES);
-                            if (jsonArray != null || jsonArray.size() > 0) {
-                                result = mGson.fromJson(jsonArray, typeThing);
-                            } else {
-                                result = mGson.fromJson(EMPTY_JSON, typeThing);
+                            JsonObject jsonObject = jsonElement.getAsJsonObject();
+
+                            if (jsonObject.get(ERROR) != null && !jsonObject.get(ERROR).isJsonNull()) {
+                                callbackResult.onEventError(new KnotException(jsonObject.get(ERROR).toString()));
+                                return;
                             }
-                            callbackResult.onEventFinish((T) result);
+
+                            JsonArray jsonArray = jsonElement.getAsJsonObject().getAsJsonArray(DEVICES);
+
+                            if (jsonArray != null || jsonArray.size() > 0) {
+                                result = mGson.fromJson(jsonArray, typeThing.getClass());
+                            } else {
+                                result = mGson.fromJson(EMPTY_JSON, typeThing.getClass());
+                            }
+                            callbackResult.onEventFinish((List<T>) result);
                         } catch (Exception e) {
                             callbackResult.onEventError(new KnotException(e));
                         }
@@ -869,7 +880,7 @@ final class KnotSocketIo {
             }
 
         }catch (Exception e){
-          LogLib.printD(e.getMessage());
+            LogLib.printD(e.getMessage());
         }
     }
 
