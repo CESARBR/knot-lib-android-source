@@ -210,8 +210,8 @@ public class FacadeConnection {
      * @throws KnotException <p>
      * @see <ahttps://meshblu-socketio.readme.io/docs/devices </a>
      */
-    public <T extends AbstractThingDevice> void socketIOGetDeviceList(final ThingList<T> typeThing, JSONObject
-            query, final Event<T> callbackResult) throws KnotException, SocketNotConnected, InvalidParametersException {
+    public <T extends AbstractThingDevice> void socketIOGetDeviceList(final List<T> typeThing, JSONObject
+            query, final Event<List<T>> callbackResult) throws KnotException, SocketNotConnected, InvalidParametersException {
         if (socketIO != null && isSocketConnected()) {
             socketIO.getDeviceList(typeThing, query, callbackResult);
         } else {
