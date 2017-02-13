@@ -350,7 +350,7 @@ final class KnotSocketIo {
     public <T extends AbstractThingDevice> void createNewDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected, JSONException {
         if (isSocketConnected() && device != null) {
 
-//            device.owner = mOwner.getUuid();
+            device.owner = mOwner.getUuid();
             String json = mGson.toJson(device);
 
             JSONObject deviceToSend = new JSONObject(json);
