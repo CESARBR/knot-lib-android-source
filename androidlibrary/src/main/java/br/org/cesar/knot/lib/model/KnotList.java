@@ -14,11 +14,11 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
 
-public final class ThingList<T> implements ParameterizedType {
+public final class KnotList<T> implements ParameterizedType {
 
     private Class<T> mClass;
 
-    public ThingList(Class<T> aClass) {
+    public KnotList(Class<T> aClass) {
         if (aClass == null) {
             throw new IllegalArgumentException("The class could not be null");
         }

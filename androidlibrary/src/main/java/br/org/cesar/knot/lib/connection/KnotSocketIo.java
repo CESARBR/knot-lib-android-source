@@ -11,7 +11,6 @@
 package br.org.cesar.knot.lib.connection;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Ack;
@@ -27,7 +26,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
-import java.security.acl.Owner;
 import java.util.List;
 
 import br.org.cesar.knot.lib.event.Event;
@@ -39,7 +37,7 @@ import br.org.cesar.knot.lib.model.AbstractThingData;
 import br.org.cesar.knot.lib.model.AbstractThingDevice;
 import br.org.cesar.knot.lib.model.AbstractThingMessage;
 import br.org.cesar.knot.lib.model.KnotQueryDateData;
-import br.org.cesar.knot.lib.model.ThingList;
+import br.org.cesar.knot.lib.model.KnotList;
 import br.org.cesar.knot.lib.util.DateUtils;
 import br.org.cesar.knot.lib.util.LogLib;
 
@@ -658,7 +656,7 @@ final class KnotSocketIo {
      * @throws KnotException <p>
      * @see <ahttps://meshblu-socketio.readme.io/docs/devices </a>
      */
-    public <T extends AbstractThingDevice> void getDeviceList(final List<T> typeThing, JSONObject
+    public <T extends AbstractThingDevice> void getDeviceList(final KnotList<T> typeThing, JSONObject
             query, final Event<List<T>> callbackResult) throws KnotException, SocketNotConnected, InvalidParametersException {
         if (isSocketConnected() && isSocketRegistered()) {
             if (typeThing != null && callbackResult != null) {
@@ -683,9 +681,9 @@ final class KnotSocketIo {
                             JsonArray jsonArray = jsonElement.getAsJsonObject().getAsJsonArray(DEVICES);
 
                             if (jsonArray != null || jsonArray.size() > 0) {
-                                result = mGson.fromJson(jsonArray, typeThing.getClass());
+                                result = mGson.fromJson(jsonArray, typeThing);
                             } else {
-                                result = mGson.fromJson(EMPTY_JSON, typeThing.getClass());
+                                result = mGson.fromJson(EMPTY_JSON, typeThing);
                             }
                             callbackResult.onEventFinish((List<T>) result);
                         } catch (Exception e) {
@@ -751,7 +749,7 @@ final class KnotSocketIo {
      * @throws InvalidParametersException
      * @throws SocketNotConnected
      */
-    public <T extends AbstractThingData> void getData(final ThingList<T> type, String uuid, String deviceToken, KnotQueryDateData knotQueryDateDataStart,KnotQueryDateData knotQueryDateDataFinish , final Event<List<T>> callbackResult) throws InvalidParametersException, SocketNotConnected {
+    public <T extends AbstractThingData> void getData(final KnotList<T> type, String uuid, String deviceToken, KnotQueryDateData knotQueryDateDataStart, KnotQueryDateData knotQueryDateDataFinish , final Event<List<T>> callbackResult) throws InvalidParametersException, SocketNotConnected {
 
         if (isSocketConnected() && isSocketRegistered()) {
             if (uuid != null && callbackResult != null) {
