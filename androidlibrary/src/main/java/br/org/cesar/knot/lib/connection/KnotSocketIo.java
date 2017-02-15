@@ -11,7 +11,6 @@
 package br.org.cesar.knot.lib.connection;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Ack;
@@ -27,7 +26,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
-import java.security.acl.Owner;
 import java.util.List;
 
 import br.org.cesar.knot.lib.event.Event;
@@ -38,7 +36,9 @@ import br.org.cesar.knot.lib.model.AbstractDeviceOwner;
 import br.org.cesar.knot.lib.model.AbstractThingData;
 import br.org.cesar.knot.lib.model.AbstractThingDevice;
 import br.org.cesar.knot.lib.model.AbstractThingMessage;
-import br.org.cesar.knot.lib.model.ThingList;
+import br.org.cesar.knot.lib.model.KnotQueryDateData;
+import br.org.cesar.knot.lib.model.KnotList;
+import br.org.cesar.knot.lib.util.DateUtils;
 import br.org.cesar.knot.lib.util.LogLib;
 
 
@@ -50,7 +50,7 @@ final class KnotSocketIo {
     /**
      * Event used to create a new device on meshblu
      */
-    private static String EVENT_CREATE_DEVICE = "device";
+    private static String EVENT_CREATE_DEVICE = "register";
 
     /**
      * Event used to delete a device on meshblu
@@ -161,6 +161,17 @@ final class KnotSocketIo {
      * Tag used to make the device parser
      */
     private static String FROM = "from";
+
+    /**
+     * Tag used to build the date query
+     */
+    private static String DATE_START = "start";
+
+    /**
+     * Tag used to build the date query
+     */
+    private static String DATE_FINISH = "finish";
+
 
     /**
      * The socket that make the communication between client and server
@@ -334,11 +345,15 @@ final class KnotSocketIo {
      * <p>
      * Check the reference on @see <a href="https://meshblu-socketio.readme.io/docs/register</a>
      */
-    public <T extends AbstractThingDevice> void createNewDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected {
+    public <T extends AbstractThingDevice> void createNewDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected, JSONException {
         if (isSocketConnected() && device != null) {
 
             device.owner = mOwner.getUuid();
-            mSocket.emit(EVENT_CREATE_DEVICE, device, new Ack() {
+            String json = mGson.toJson(device);
+
+            JSONObject deviceToSend = new JSONObject(json);
+
+            mSocket.emit(EVENT_CREATE_DEVICE, deviceToSend, new Ack() {
                 @Override
                 public void call(Object... args) {
                     // check if it's necessary to return the result of event
@@ -641,10 +656,14 @@ final class KnotSocketIo {
      * @throws KnotException <p>
      * @see <ahttps://meshblu-socketio.readme.io/docs/devices </a>
      */
-    public <T extends AbstractThingDevice> void getDeviceList(final ThingList<T> typeThing, JSONObject
-            query, final Event<T> callbackResult) throws KnotException, SocketNotConnected, InvalidParametersException {
+    public <T extends AbstractThingDevice> void getDeviceList(final KnotList<T> typeThing, JSONObject
+            query, final Event<List<T>> callbackResult) throws KnotException, SocketNotConnected, InvalidParametersException {
         if (isSocketConnected() && isSocketRegistered()) {
-            if (typeThing != null && query != null && callbackResult != null) {
+            if (typeThing != null && callbackResult != null) {
+
+                if(query == null){
+                    query = new JSONObject();
+                }
 
                 mSocket.emit(EVENT_GET_DEVICES, query, new Ack() {
                     @Override
@@ -652,13 +671,21 @@ final class KnotSocketIo {
                         List<T> result = null;
                         try {
                             JsonElement jsonElement = new JsonParser().parse(args[FIRST_EVENT_RECEIVED].toString());
+                            JsonObject jsonObject = jsonElement.getAsJsonObject();
+
+                            if (jsonObject.get(ERROR) != null && !jsonObject.get(ERROR).isJsonNull()) {
+                                callbackResult.onEventError(new KnotException(jsonObject.get(ERROR).toString()));
+                                return;
+                            }
+
                             JsonArray jsonArray = jsonElement.getAsJsonObject().getAsJsonArray(DEVICES);
+
                             if (jsonArray != null || jsonArray.size() > 0) {
                                 result = mGson.fromJson(jsonArray, typeThing);
                             } else {
                                 result = mGson.fromJson(EMPTY_JSON, typeThing);
                             }
-                            callbackResult.onEventFinish((T) result);
+                            callbackResult.onEventFinish((List<T>) result);
                         } catch (Exception e) {
                             callbackResult.onEventError(new KnotException(e));
                         }
@@ -715,11 +742,14 @@ final class KnotSocketIo {
      *
      * @param type           List of abstracts objects
      * @param uuid           UUid of device
+     * @param deviceToken    token of the device
+     * @param knotQueryDateDataStart Start date query
+     * @param knotQueryDateDataStart Finish Date query
      * @param callbackResult Callback for this method
      * @throws InvalidParametersException
      * @throws SocketNotConnected
      */
-    public <T extends AbstractThingData> void getData(final ThingList<T> type, String uuid, final Event<List<T>> callbackResult) throws InvalidParametersException, SocketNotConnected {
+    public <T extends AbstractThingData> void getData(final KnotList<T> type, String uuid, String deviceToken, KnotQueryDateData knotQueryDateDataStart, KnotQueryDateData knotQueryDateDataFinish , final Event<List<T>> callbackResult) throws InvalidParametersException, SocketNotConnected {
 
         if (isSocketConnected() && isSocketRegistered()) {
             if (uuid != null && callbackResult != null) {
@@ -727,6 +757,15 @@ final class KnotSocketIo {
                 JSONObject dataToSend = new JSONObject();
                 try {
                     dataToSend.put(UUID, uuid);
+                    dataToSend.put(TOKEN, deviceToken);
+
+                    if(knotQueryDateDataStart!=null){
+                        dataToSend.put(DATE_START, DateUtils.getTimeStamp(knotQueryDateDataStart));
+                    }
+
+                    if(knotQueryDateDataFinish !=null){
+                        dataToSend.put(DATE_FINISH, DateUtils.getTimeStamp(knotQueryDateDataFinish));
+                    }
                 } catch (JSONException e) {
                     callbackResult.onEventError(new KnotException());
                 }
@@ -739,7 +778,7 @@ final class KnotSocketIo {
                             JsonElement jsonElement = new JsonParser().parse(args[FIRST_EVENT_RECEIVED].toString());
                             JsonArray jsonArray = jsonElement.getAsJsonObject().getAsJsonArray(DATA);
 
-                            if (jsonArray != null || jsonArray.size() > 0) {
+                            if (jsonArray != null && jsonArray.size() > 0) {
                                 result = mGson.fromJson(jsonArray.toString(), type);
                             } else {
                                 result = mGson.fromJson(EMPTY_JSON, type);
@@ -845,7 +884,7 @@ final class KnotSocketIo {
             }
 
         }catch (Exception e){
-          LogLib.printD(e.getMessage());
+            LogLib.printD(e.getMessage());
         }
     }
 

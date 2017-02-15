@@ -12,8 +12,6 @@ package br.org.cesar.knot.lib.connection;
 
 import android.support.annotation.NonNull;
 
-import com.google.gson.JsonElement;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -27,7 +25,8 @@ import br.org.cesar.knot.lib.exception.SocketNotConnected;
 import br.org.cesar.knot.lib.model.AbstractThingData;
 import br.org.cesar.knot.lib.model.AbstractThingDevice;
 import br.org.cesar.knot.lib.model.AbstractThingMessage;
-import br.org.cesar.knot.lib.model.ThingList;
+import br.org.cesar.knot.lib.model.KnotQueryDateData;
+import br.org.cesar.knot.lib.model.KnotList;
 
 /**
  * The type Facade connection.
@@ -80,7 +79,7 @@ public class FacadeConnection {
      * @param callbackResult the callback result
      * @throws SocketNotConnected the socket not connected
      */
-    public synchronized <T extends AbstractThingDevice> void socketIOCreateNewDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected {
+    public synchronized <T extends AbstractThingDevice> void socketIOCreateNewDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected, JSONException {
         if (socketIO != null && isSocketConnected()) {
             socketIO.createNewDevice(device, callbackResult);
         } else {
@@ -209,8 +208,8 @@ public class FacadeConnection {
      * @throws KnotException <p>
      * @see <ahttps://meshblu-socketio.readme.io/docs/devices </a>
      */
-    public <T extends AbstractThingDevice> void socketIOGetDeviceList(final ThingList<T> typeThing, JSONObject
-            query, final Event<T> callbackResult) throws KnotException, SocketNotConnected, InvalidParametersException {
+    public <T extends AbstractThingDevice> void socketIOGetDeviceList(final KnotList<T> typeThing, JSONObject
+            query, final Event<List<T>> callbackResult) throws KnotException, SocketNotConnected, InvalidParametersException {
         if (socketIO != null && isSocketConnected()) {
             socketIO.getDeviceList(typeThing, query, callbackResult);
         } else {
@@ -241,13 +240,16 @@ public class FacadeConnection {
      *
      * @param type           List of abstracts objects
      * @param uuid           UUid of device
+     * @param deviceToken    token of the device
+     * @param knotQueryDateDataStart Start date query
+     * @param knotQueryDateDataStart Finish Date query
      * @param callbackResult Callback for this method
      * @throws InvalidParametersException
      * @throws SocketNotConnected
      */
-    public <T extends AbstractThingData> void socketIOGetData(final ThingList<T> type, String uuid, final Event<List<T>> callbackResult) throws InvalidParametersException, SocketNotConnected {
+    public <T extends AbstractThingData> void socketIOGetData(final KnotList<T> type, String uuid, String deviceToken, KnotQueryDateData knotQueryDateDataStart, KnotQueryDateData knotQueryDateDataFinish, final Event<List<T>> callbackResult) throws InvalidParametersException, SocketNotConnected {
         if (socketIO != null && isSocketConnected()) {
-            socketIO.getData(type, uuid, callbackResult);
+            socketIO.getData(type, uuid,deviceToken,knotQueryDateDataStart,knotQueryDateDataFinish, callbackResult);
         } else {
             throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
         }
@@ -621,7 +623,7 @@ public class FacadeConnection {
      * @return a List with all devices those belongs to the owner
      * @throws KnotException
      */
-    public <T extends AbstractThingDevice> List<T> httpGetDeviceList(final List<T> type) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
+    public <T extends AbstractThingDevice> List<T> httpGetDeviceList(final KnotList<T> type) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
         if (thingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
@@ -630,14 +632,14 @@ public class FacadeConnection {
     }
 
     /**
-     * Async version of {@link #httpGetDeviceList(List<T>)}
+     * Async version of {@link #httpGetDeviceList(KnotList<T>)}
      *
      * @param type     object that will define what elements will returned by this method
      * @param callback
      * @return a List with all devices those belongs to the owner
      * @throws KnotException KnotException
      */
-    public <T extends AbstractThingDevice> void httpGetDeviceList(final List<T> type, final Event<List<T>> callback) throws IllegalStateException {
+    public <T extends AbstractThingDevice> void httpGetDeviceList(final KnotList<T> type, final Event<List<T>> callback) throws IllegalStateException {
         if (thingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
@@ -685,7 +687,7 @@ public class FacadeConnection {
      * @return a List with data of the device
      * @throws KnotException
      */
-    public <T extends AbstractThingData> List<T> httpGetDataList(String device, final List<T> type) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
+    public <T extends AbstractThingData> List<T> httpGetDataList(String device, final KnotList<T> type) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
         if (thingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
@@ -694,14 +696,14 @@ public class FacadeConnection {
     }
 
     /**
-     * Async version of {@link #httpGetDataList(String, List<T>)}
+     * Async version of {@link #httpGetDataList(String, KnotList<T>)}
      *
      * @param device   the device identifier (uuid)
      * @param type     object that will define what elements will returned by this method
      * @param callback Callback for this method
      * @return a List with data of the device
      */
-    public <T extends AbstractThingData> void httpGetDataList(final String device, final List<T> type, final Event<List<T>> callback) throws IllegalStateException {
+    public <T extends AbstractThingData> void httpGetDataList(final String device, final KnotList<T> type, final Event<List<T>> callback) throws IllegalStateException {
         if (thingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
