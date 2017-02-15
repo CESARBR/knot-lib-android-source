@@ -24,6 +24,7 @@ import br.org.cesar.knot.lib.exception.KnotException;
 import br.org.cesar.knot.lib.model.AbstractThingData;
 import br.org.cesar.knot.lib.model.AbstractThingDevice;
 import br.org.cesar.knot.lib.model.AbstractThingMessage;
+import br.org.cesar.knot.lib.model.KnotList;
 
 
 /**
@@ -204,7 +205,7 @@ public class ThingsAPiTest extends AndroidTestCase {
      */
     public void testGetDevicesList(){
 
-        List<TestImplThingDevice> list = new ArrayList<>();
+        KnotList<TestImplThingDevice> list = new KnotList<>(TestImplThingDevice.class);
 
         try {
            List<TestImplThingDevice> listOfDevice  =  FacadeConnection.getInstance().httpGetDeviceList(list);
@@ -245,7 +246,7 @@ public class ThingsAPiTest extends AndroidTestCase {
      */
     public void testGetDataList(){
 
-        List<TestImplThingData>  listOfData = new ArrayList<>();
+        KnotList<TestImplThingData>  listOfData = new KnotList<>(TestImplThingData.class);
 
         try {
             List<TestImplThingData> listResulted = FacadeConnection.getInstance().httpGetDataList(UUID_OWNER, listOfData);
