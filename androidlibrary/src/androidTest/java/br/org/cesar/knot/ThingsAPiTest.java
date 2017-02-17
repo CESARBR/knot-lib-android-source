@@ -25,6 +25,7 @@ import br.org.cesar.knot.lib.model.AbstractThingData;
 import br.org.cesar.knot.lib.model.AbstractThingDevice;
 import br.org.cesar.knot.lib.model.AbstractThingMessage;
 import br.org.cesar.knot.lib.model.KnotList;
+import br.org.cesar.knot.lib.model.KnotQueryData;
 
 
 /**
@@ -127,11 +128,11 @@ public class ThingsAPiTest extends AndroidTestCase {
 
         try {
 
-          device =  FacadeConnection.getInstance().httpWhoAmI(device.getClass());
+            device =  FacadeConnection.getInstance().httpWhoAmI(device.getClass());
 
-          Assert.assertNotNull(device.getUuid());
+            Assert.assertNotNull(device.getUuid());
 
-          Assert.assertEquals("The call of WhoAMi is correct", device.getUuid(),UUID_OWNER);
+            Assert.assertEquals("The call of WhoAMi is correct", device.getUuid(),UUID_OWNER);
 
         } catch (KnotException e) {
             Assert.fail(e.getMessage());
@@ -159,7 +160,7 @@ public class ThingsAPiTest extends AndroidTestCase {
         //Change the custom data
         device.setCustomData(FIRST_DEVICE);
         try {
-           device =  FacadeConnection.getInstance().httpUpdateDevice(device.getUuid(), device);
+            device =  FacadeConnection.getInstance().httpUpdateDevice(device.getUuid(), device);
 
             Assert.assertNotNull(device);
 
@@ -186,9 +187,9 @@ public class ThingsAPiTest extends AndroidTestCase {
         Assert.assertNotNull(device);
 
         try {
-          Boolean result = FacadeConnection.getInstance().httpDeleteDevice(device.getUuid());
+            Boolean result = FacadeConnection.getInstance().httpDeleteDevice(device.getUuid());
 
-          Assert.assertTrue("The device was deleted", result);
+            Assert.assertTrue("The device was deleted", result);
 
         } catch (KnotException e) {
             Assert.fail(e.getMessage());
@@ -208,9 +209,9 @@ public class ThingsAPiTest extends AndroidTestCase {
         KnotList<TestImplThingDevice> list = new KnotList<>(TestImplThingDevice.class);
 
         try {
-           List<TestImplThingDevice> listOfDevice  =  FacadeConnection.getInstance().httpGetDeviceList(list);
+            List<TestImplThingDevice> listOfDevice  =  FacadeConnection.getInstance().httpGetDeviceList(list);
 
-           Assert.assertNotNull(listOfDevice);
+            Assert.assertNotNull(listOfDevice);
 
         } catch (KnotException e) {
             Assert.fail(e.getMessage());
@@ -229,9 +230,9 @@ public class ThingsAPiTest extends AndroidTestCase {
         data.setTemperature(TEMPERATURE_TEST);
 
         try {
-           boolean result  =  FacadeConnection.getInstance().httpCreateData(UUID_OWNER, data);
+            boolean result  =  FacadeConnection.getInstance().httpCreateData(UUID_OWNER, data);
 
-           Assert.assertTrue("The data was created ", result);
+            Assert.assertTrue("The data was created ", result);
         } catch (KnotException e) {
             Assert.fail(e.getMessage());
             e.printStackTrace();
@@ -247,9 +248,10 @@ public class ThingsAPiTest extends AndroidTestCase {
     public void testGetDataList(){
 
         KnotList<TestImplThingData>  listOfData = new KnotList<>(TestImplThingData.class);
+        KnotQueryData knotQueryData = new KnotQueryData();
 
         try {
-            List<TestImplThingData> listResulted = FacadeConnection.getInstance().httpGetDataList(UUID_OWNER, listOfData);
+            List<TestImplThingData> listResulted = FacadeConnection.getInstance().httpGetDataList(UUID_OWNER, knotQueryData,listOfData);
 
             Assert.assertNotNull(listResulted);
 

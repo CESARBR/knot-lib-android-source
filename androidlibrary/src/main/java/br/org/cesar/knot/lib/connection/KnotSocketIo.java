@@ -36,6 +36,7 @@ import br.org.cesar.knot.lib.model.AbstractDeviceOwner;
 import br.org.cesar.knot.lib.model.AbstractThingData;
 import br.org.cesar.knot.lib.model.AbstractThingDevice;
 import br.org.cesar.knot.lib.model.AbstractThingMessage;
+import br.org.cesar.knot.lib.model.KnotQueryData;
 import br.org.cesar.knot.lib.model.KnotQueryDateData;
 import br.org.cesar.knot.lib.model.KnotList;
 import br.org.cesar.knot.lib.util.DateUtils;
@@ -172,6 +173,10 @@ final class KnotSocketIo {
      */
     private static String DATE_FINISH = "finish";
 
+    /**
+     * Tag used to build the date query
+     */
+    private static String LIMIT = "limit";
 
     /**
      * The socket that make the communication between client and server
@@ -743,29 +748,36 @@ final class KnotSocketIo {
      * @param type           List of abstracts objects
      * @param uuid           UUid of device
      * @param deviceToken    token of the device
-     * @param knotQueryDateDataStart Start date query
-     * @param knotQueryDateDataStart Finish Date query
+     * @param knotQueryData  Date query
      * @param callbackResult Callback for this method
      * @throws InvalidParametersException
      * @throws SocketNotConnected
      */
-    public <T extends AbstractThingData> void getData(final KnotList<T> type, String uuid, String deviceToken, KnotQueryDateData knotQueryDateDataStart, KnotQueryDateData knotQueryDateDataFinish , final Event<List<T>> callbackResult) throws InvalidParametersException, SocketNotConnected {
+    public <T extends AbstractThingData> void getData(final KnotList<T> type, String uuid, String deviceToken, KnotQueryData knotQueryData, final Event<List<T>> callbackResult) throws InvalidParametersException, SocketNotConnected {
 
-        if (isSocketConnected() && isSocketRegistered()) {
+        if (isSocketConnected() && isSocketRegistered() && knotQueryData !=null) {
             if (uuid != null && callbackResult != null) {
 
                 JSONObject dataToSend = new JSONObject();
+                int maxNumberOfItem = -1;
                 try {
                     dataToSend.put(UUID, uuid);
                     dataToSend.put(TOKEN, deviceToken);
 
-                    if(knotQueryDateDataStart!=null){
-                        dataToSend.put(DATE_START, DateUtils.getTimeStamp(knotQueryDateDataStart));
+                    if(knotQueryData.getStartDate()!=null){
+                        dataToSend.put(DATE_START, DateUtils.getTimeStamp(knotQueryData.getStartDate()));
                     }
 
-                    if(knotQueryDateDataFinish !=null){
-                        dataToSend.put(DATE_FINISH, DateUtils.getTimeStamp(knotQueryDateDataFinish));
+                    if(knotQueryData.getFinishDate() !=null){
+                        dataToSend.put(DATE_FINISH, DateUtils.getTimeStamp(knotQueryData.getFinishDate()));
                     }
+
+                    if(knotQueryData.getLimit()>0){
+                        maxNumberOfItem = knotQueryData.getLimit();
+                    }
+
+                    dataToSend.put(LIMIT, maxNumberOfItem);
+
                 } catch (JSONException e) {
                     callbackResult.onEventError(new KnotException());
                 }
