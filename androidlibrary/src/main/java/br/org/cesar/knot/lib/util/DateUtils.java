@@ -16,6 +16,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
 
 import br.org.cesar.knot.lib.model.KnotQueryDateData;
 
@@ -31,12 +33,13 @@ public class DateUtils {
      * @return compatible date to do the query
      */
     public static String getTimeStamp(KnotQueryDateData knotQueryDateData) {
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = GregorianCalendar.getInstance();
+
 
         calendar.set(Calendar.YEAR, knotQueryDateData.getYear());
         calendar.set(Calendar.MONTH, knotQueryDateData.getMonth() - FIX_MONTH_ANDROID_ERROR);
         calendar.set(Calendar.DAY_OF_MONTH, knotQueryDateData.getDay());
-        calendar.set(Calendar.HOUR, knotQueryDateData.getHour());
+        calendar.set(Calendar.HOUR_OF_DAY, knotQueryDateData.getHour());
         calendar.set(Calendar.MINUTE, knotQueryDateData.getMinute());
         calendar.set(Calendar.SECOND, knotQueryDateData.getSecond());
         calendar.set(Calendar.MILLISECOND, knotQueryDateData.getMillisecond());
@@ -74,7 +77,7 @@ public class DateUtils {
      * @return KnotQueryDateData object
      * @throws ParseException
      */
-    public static KnotQueryDateData getCurretnKnotQueryDateData() throws ParseException {
+    public static KnotQueryDateData getCurrentKnotQueryDateData() throws ParseException {
 
         SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
 
@@ -85,7 +88,7 @@ public class DateUtils {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
 
-        KnotQueryDateData knotQueryDateData = new KnotQueryDateData(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + FIX_MONTH_ANDROID_ERROR, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR), calendar.get(Calendar.MINUTE), calendar.get(Calendar.SECOND), calendar.get(Calendar.MILLISECOND));
+        KnotQueryDateData knotQueryDateData = new KnotQueryDateData(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + FIX_MONTH_ANDROID_ERROR, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), calendar.get(Calendar.SECOND), calendar.get(Calendar.MILLISECOND));
 
         return knotQueryDateData;
     }
