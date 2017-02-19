@@ -25,6 +25,7 @@ import br.org.cesar.knot.lib.exception.SocketNotConnected;
 import br.org.cesar.knot.lib.model.AbstractThingData;
 import br.org.cesar.knot.lib.model.AbstractThingDevice;
 import br.org.cesar.knot.lib.model.AbstractThingMessage;
+import br.org.cesar.knot.lib.model.KnotQueryData;
 import br.org.cesar.knot.lib.model.KnotQueryDateData;
 import br.org.cesar.knot.lib.model.KnotList;
 
@@ -241,15 +242,14 @@ public class FacadeConnection {
      * @param type           List of abstracts objects
      * @param uuid           UUid of device
      * @param deviceToken    token of the device
-     * @param knotQueryDateDataStart Start date query
-     * @param knotQueryDateDataStart Finish Date query
+     * @param knotQueryData  Date query
      * @param callbackResult Callback for this method
      * @throws InvalidParametersException
      * @throws SocketNotConnected
      */
-    public <T extends AbstractThingData> void socketIOGetData(final KnotList<T> type, String uuid, String deviceToken, KnotQueryDateData knotQueryDateDataStart, KnotQueryDateData knotQueryDateDataFinish, final Event<List<T>> callbackResult) throws InvalidParametersException, SocketNotConnected {
+    public <T extends AbstractThingData> void socketIOGetData(final KnotList<T> type, String uuid, String deviceToken, KnotQueryData knotQueryData, final Event<List<T>> callbackResult) throws InvalidParametersException, SocketNotConnected {
         if (socketIO != null && isSocketConnected()) {
-            socketIO.getData(type, uuid,deviceToken,knotQueryDateDataStart,knotQueryDateDataFinish, callbackResult);
+            socketIO.getData(type, uuid,deviceToken,knotQueryData, callbackResult);
         } else {
             throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
         }
@@ -687,27 +687,27 @@ public class FacadeConnection {
      * @return a List with data of the device
      * @throws KnotException
      */
-    public <T extends AbstractThingData> List<T> httpGetDataList(String device, final KnotList<T> type) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
+    public <T extends AbstractThingData> List<T> httpGetDataList(String device, KnotQueryData knotQueryData,final KnotList<T> type) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
         if (thingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            return thingApi.getDataList(device, type);
+            return thingApi.getDataList(device, type,knotQueryData);
         }
     }
 
     /**
-     * Async version of {@link #httpGetDataList(String, KnotList<T>)}
+     * Async version of {@link #httpGetDataList(String,KnotQueryData ,KnotList<T>)}
      *
      * @param device   the device identifier (uuid)
      * @param type     object that will define what elements will returned by this method
      * @param callback Callback for this method
      * @return a List with data of the device
      */
-    public <T extends AbstractThingData> void httpGetDataList(final String device, final KnotList<T> type, final Event<List<T>> callback) throws IllegalStateException {
+    public <T extends AbstractThingData> void httpGetDataList(final String device,KnotQueryData knotQueryData ,final KnotList<T> type, final Event<List<T>> callback) throws IllegalStateException {
         if (thingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            thingApi.getDataList(device, type, callback);
+            thingApi.getDataList(device, type, knotQueryData,callback);
         }
     }
 
