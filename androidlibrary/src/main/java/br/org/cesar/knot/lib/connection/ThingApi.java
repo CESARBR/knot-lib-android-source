@@ -35,6 +35,8 @@ import br.org.cesar.knot.lib.model.AbstractThingData;
 import br.org.cesar.knot.lib.model.AbstractThingDevice;
 import br.org.cesar.knot.lib.model.AbstractThingMessage;
 import br.org.cesar.knot.lib.model.KnotList;
+import br.org.cesar.knot.lib.model.KnotQueryData;
+import br.org.cesar.knot.lib.util.DateUtils;
 
 /**
  * The main class that list all method available to use with KNOT
@@ -55,6 +57,24 @@ final class ThingApi {
     private static final String MESSAGE = "/messages/";
     private static final String JSON_DEVICES = "devices";
     private static final String JSON_DATA = "data";
+
+    /**
+     * Tag used to build the date query
+     */
+    private static String DATE_START = "start";
+
+    /**
+     * Tag used to build the date query
+     */
+    private static String DATE_FINISH = "finish";
+
+    /**
+     * Tag used to build the date query
+     */
+    private static String LIMIT = "limit";
+
+    private static String EQUAL = "=";
+
     private static ThingApi sInstance;
     private final Handler mMainHandler;
     private final OkHttpClient mHttpClient;
@@ -556,17 +576,20 @@ final class ThingApi {
     /**
      * @param device the device identifier (uuid)
      * @param type   object that will define what elements will returned by this method
+     * @param knotQueryData  Date query
      * @return a List with data of the device
      * @throws KnotException KnotException
      */
-    public <T extends AbstractThingData> List<T> getDataList(String device, final KnotList<T> type) throws InvalidDeviceOwnerStateException, KnotException {
+    public <T extends AbstractThingData> List<T> getDataList(String device, final KnotList<T> type, KnotQueryData knotQueryData) throws InvalidDeviceOwnerStateException, KnotException {
         // Check if the current state of device owner is valid
         if (!isValidDeviceOwner()) {
             throw new InvalidDeviceOwnerStateException("The device owner is invalid or null");
         }
 
-        final String endPoint = mEndPoint + DATA_PATH + device;
+        final String endPoint = mEndPoint + DATA_PATH + device + getDataParameter(knotQueryData);
         Request request = generateBasicRequestBuild(this.abstractDeviceOwner.getUuid(), this.abstractDeviceOwner.getToken(), endPoint).build();
+
+
 
         try {
             Response response = mHttpClient.newCall(request).execute();
@@ -583,20 +606,22 @@ final class ThingApi {
         }
     }
 
+
     /**
-     * Async version of {@link #getDataList(String, KnotList<T>)}
+     * Async version of {@link #getDataList(String, KnotList, KnotQueryData, Event)}
      *
      * @param device   the device identifier (uuid)
      * @param type     object that will define what elements will returned by this method
      * @param callback Callback for this method
+     * @param knotQueryData  Date query
      * @return a List with data of the device
      */
-    public <T extends AbstractThingData> void getDataList(final String device, final KnotList<T> type, final Event<List<T>> callback) {
+    public <T extends AbstractThingData> void getDataList(final String device, final KnotList<T> type, final KnotQueryData knotQueryData, final Event<List<T>> callback) {
         new Thread() {
             @Override
             public void run() {
                 try {
-                    List<T> result = getDataList(device, type);
+                    List<T> result = getDataList(device, type,knotQueryData);
 
                     dispatchSuccess(callback, result);
                 } catch (KnotException | InvalidDeviceOwnerStateException e) {
@@ -710,5 +735,38 @@ final class ThingApi {
         return this.abstractDeviceOwner != null
                 && !TextUtils.isEmpty(this.abstractDeviceOwner.getUuid())
                 && !TextUtils.isEmpty(this.abstractDeviceOwner.getToken());
+    }
+
+    /**
+     * This method is used to build the parameters
+     * @param knotQueryData object with query information
+     * @return String that represents a list of parameter
+     */
+    private String getDataParameter(KnotQueryData knotQueryData){
+
+        String parameter = "?";
+        String and = "&";
+        int amountOfKnotData = -1;
+
+        if(knotQueryData!=null){
+
+            if(knotQueryData.getLimit()>0){
+                amountOfKnotData = knotQueryData.getLimit();
+            }
+
+            parameter=parameter + LIMIT+EQUAL+amountOfKnotData;
+
+            if(knotQueryData.getStartDate()!=null){
+                parameter=parameter + and + DATE_START+EQUAL+DateUtils.getTimeStamp(knotQueryData.getStartDate());
+            }
+
+            if(knotQueryData.getFinishDate() !=null){
+                parameter=parameter + and + DATE_FINISH+EQUAL+DateUtils.getTimeStamp(knotQueryData.getFinishDate());
+            }
+
+        }
+
+        return parameter.trim();
+
     }
 }
