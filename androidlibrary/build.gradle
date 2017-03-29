@@ -1,21 +1,64 @@
 apply plugin: 'com.android.library'
 
+ext {
+    bintrayRepo = 'knot'
+    bintrayName = 'knot-android'
+    bintrayUserOrg = 'cesarbr'
+
+    publishedGroupId = 'br.org.cesar.knot'
+    libraryName = 'Knot Android'
+    artifact = 'knot-android'
+
+    libraryDescription = 'This lib is a part of KNOT solution. It aims to provide an abstraction' +
+            ' for Android applications to create IoT (Internet of Things) solutions using KNOT cloud.'
+
+    issuesUrl = 'https://github.com/CESARBR/knot-lib-android-source/issues'
+    siteUrl = 'https://github.com/CESARBR/knot-lib-android-source'
+    gitUrl = 'https://github.com/CESARBR/knot-lib-android-source'
+
+    libraryVersion = project.hasProperty('releaseVersion') ?
+            project.releaseVersion : rootProject.ext.versionName
+
+    developerId = 'cesarbr'
+    developerName = 'CESAR KNoT'
+    developerEmail = 'knot-devel@cesar.org.br'
+
+    licenseName = 'The MIT License'
+    licenseUrl = 'https://opensource.org/licenses/MIT'
+    allLicenses = ["MIT"]
+}
+
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion 10
-        targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
-        project.archivesBaseName = "knot-android-library"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+        defaultPublishConfig 'release'
+        publishNonDefault true
+
+        project.archivesBaseName = "knot-android"
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+
+    sourceSets {
+        main {
+            java.srcDirs = ['src/main/java']
+            resources.srcDirs = ['src/main/res']
+        }
+        test {
+            java.srcDirs = ['src/test/java']
+            resources.srcDirs = ['src/test/res']
+        }
+        androidTest.setRoot('test')
     }
 }
 
@@ -24,8 +67,8 @@ dependencies {
     compile 'com.squareup.okhttp:okhttp:2.7.0'
     compile 'com.google.code.gson:gson:2.4'
 
-    compile ('com.github.nkzawa:socket.io-client:0.4.1') {
-        exclude group:'org.json', module:'json'
+    compile('com.github.nkzawa:socket.io-client:0.4.1') {
+        exclude group: 'org.json', module: 'json'
     }
     compile 'com.android.support:appcompat-v7:23.4.0'
     compile 'com.android.support:support-annotations:23.4.0'
@@ -34,3 +77,5 @@ dependencies {
     androidTestCompile 'com.android.support.test:rules:0.4'
     testCompile 'junit:junit:4.12'
 }
+
+apply from: "${rootDir.getPath()}/publish.gradle"
