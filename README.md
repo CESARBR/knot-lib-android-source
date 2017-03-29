@@ -1,6 +1,8 @@
 
 ## KNOT Android library
 
+[![Build Status](https://travis-ci.org/CESARBR/knot-lib-android-source.svg?branch=master)](https://travis-ci.org/CESARBR/knot-lib-android-source)
+
 1. This lib is a part of KNOT solution (for more information: https://github.com/CESARBR) and it aims to provide an abstraction for Android applications to create IoT (Internet of Things) solutions using KNOT platform by HTTP and Socket protocols.
 
 ## knot-lib-android-source Goals
