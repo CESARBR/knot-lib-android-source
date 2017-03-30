@@ -1,1 +1,1 @@
-include ':androidlibrary'
+include ':knot-android'
