@@ -14,7 +14,8 @@ ext {
 
     issuesUrl = 'https://github.com/CESARBR/knot-lib-android-source/issues'
     siteUrl = 'https://github.com/CESARBR/knot-lib-android-source'
-    gitUrl = 'https://github.com/CESARBR/knot-lib-android-source'
+    gitUrl = 'https://github.com/CESARBR/knot-lib-android-source.git'
+    githubRepository = 'CESARBR/knot-lib-android-source'
 
     libraryVersion = project.hasProperty('releaseVersion') ?
             project.releaseVersion : rootProject.ext.versionName
@@ -37,10 +38,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode rootProject.ext.versionCode
         versionName rootProject.ext.versionName
-        defaultPublishConfig 'release'
-        publishNonDefault true
 
-        project.archivesBaseName = "knot-android"
     }
     buildTypes {
         release {
@@ -49,16 +47,8 @@ android {
         }
     }
 
-    sourceSets {
-        main {
-            java.srcDirs = ['src/main/java']
-            resources.srcDirs = ['src/main/res']
-        }
-        test {
-            java.srcDirs = ['src/test/java']
-            resources.srcDirs = ['src/test/res']
-        }
-        androidTest.setRoot('test')
+    lintOptions {
+        abortOnError false
     }
 }
 
