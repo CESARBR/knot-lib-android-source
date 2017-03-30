@@ -1,19 +1,28 @@
 language: android
-
 jdk:
-  - oraclejdk8
+- oraclejdk8
+
+env:
+  global:
+  - secure: gY/7uwWIuDGr2aK4lbn6tlvygU1Usr+Uw+MuULFuMghyRQCjk+CApwElelWC3L9p2OktBpDF7KstRH4A+fE2GmXJ6wo/D0qfDNogCWe52pVHFycnXRbMDHSBVmNeDp9nhtFJFCKjiTqgGofX2aA35pKxh24atKSAXG6dr2/45NGMdAMqHg7l9SVc0VorXRLYCtfMNGymP77Zs9OLjLouO8kwdBaAPTlRFlX9Vb+yUzwPcTRh3tkSQEROXjf/4elA4mCXg1vuiHeRsUhoiLET3gpr9TGpPKLdY/VtnvuCrDXhn64QNlKfxvdhDxX8yK0x+gyXlnhlF4A0NaX4YmGzT2jb3M4kUdmhEA2clPG7QbRJG+PRPhf+luBp/Y7ao0lHfPbZ1HcKMg7ytQDwxGzhH9dgX8AhXHYxD5xX2e+U2v59p2IAL3TmLX1QRTf9kS5tL7roQE4m2ayi353gchKXJ/+kfTNfJwzU1LDh/6oD3bbCfepDicUhjkXPA4NLkN2mhDRymTmJcU7jxoMu/iCREKr2NGu4d9lKo84xUs/ZFA0YiS89ljqBjwQoUovkl/5/C750nglxUUuDeGqEyoEYSm2By45qclVowpoHGuMDnYtDcki2H9fa7fCQrtrqDyCuvTVnVlFlpyGfez3yh3FnFjtC4i+Wg2lc8oeLsvIjmiw=
+  - secure: EfAoVa90BVYSl2Y70iEknwvQpLzmwf52nEffF51GIbRdiSW3msnIiWaPEQWAdmlpyq4bzELyESiCkxtkV9stHx1oY4obXwGYtRFg/VUrg4oqYTGyQE83RdAVlGWk5lzNmuQEa+bgWEVAjsC7fRmBDHTlLb0GtaPJW+NvsiYcnrIr4tw0TCHvWImRrdJnqIyY1ite/vVrvDUndKEoH4skF+29GiR7ChoKzlCTZ8bAbX6GBr+2Kl8FHoJcX2g40CHpAtepYDcmtTptYKeFfg3pDXsQW42nbMrx30NeUXUBc0Xsc2lfp0GtA0bOEAm0WggaJfNI0Biz/tWI31jPmMexNlhW3NC5WFSJSTrXKLMqkp8Rs+qVZw3tb4zZiBXCIesCoM/mYD3lq9qlW3GtiFJYghb7MQjm+tGHmRpLqtqSWWlwL+g12xwnlmVqT+oHvt1eHTGfLv3JANjVw92NXhO2f9ONRLMmqekR+aJn/ELdzwU1dn7pRo6D1Q7atdWI5R1fD/f/LsJXoUdcocg9jjrbIP2sELM7wxY87POFKf06ns2hLzggExGJaMPXVAZGaxTygxlwme/7c04FnihQCqiTlr8EoGkRwJNDJz7UZOqRGxvhSsbWC6k3J8iBfou0LaeIYy3ykriHpzboliTzyOAQWOMrVpm4a4zkW2MPbcAwtUI=
+
+branches:
+  only:
+    - master
 
 android:
   components:
-    - tools
-    - platform-tools
-    - build-tools-23.0.2
-    - android-23
-    - extra-android-m2repository
+  - tools
+  - platform-tools
+  - build-tools-23.0.2
+  - android-23
+  - extra-android-m2repository
   licenses:
-    - 'android-sdk-preview-license-52d11cd2'
-    - 'android-sdk-license-.+'
-    - 'google-gdk-license-.+'
-
+  - android-sdk-preview-license-52d11cd2
+  - android-sdk-license-.+
+  - google-gdk-license-.+
+before_script:
+  - chmod +x build.sh
 script:
-  - ./gradlew clean aR
+  - ./build.sh
