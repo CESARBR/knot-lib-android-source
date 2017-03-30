@@ -10,6 +10,7 @@ env:
 branches:
   only:
     - master
+    - $TRAVIS_TAG
 
 android:
   components:
