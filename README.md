@@ -1,6 +1,7 @@
 
 ## KNOT Android library
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/4d7b8df3c50047ee8abc48259c697e1f)](https://www.codacy.com/app/eslimaf/knot-lib-android-source?utm_source=github.com&utm_medium=referral&utm_content=CESARBR/knot-lib-android-source&utm_campaign=badger)
 [![Build Status](https://travis-ci.org/CESARBR/knot-lib-android-source.svg?branch=master)](https://travis-ci.org/CESARBR/knot-lib-android-source)
 [ ![Download](https://api.bintray.com/packages/cesarbr/knot/knot-android/images/download.svg) ](https://bintray.com/cesarbr/knot/knot-android/_latestVersion)
 
