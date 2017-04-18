@@ -26,7 +26,6 @@ import br.org.cesar.knot.lib.model.AbstractThingData;
 import br.org.cesar.knot.lib.model.AbstractThingDevice;
 import br.org.cesar.knot.lib.model.AbstractThingMessage;
 import br.org.cesar.knot.lib.model.KnotQueryData;
-import br.org.cesar.knot.lib.model.KnotQueryDateData;
 import br.org.cesar.knot.lib.model.KnotList;
 
 /**
@@ -38,8 +37,8 @@ public class FacadeConnection {
     private static final Object lock = new Object();
     private static FacadeConnection sInstance;
 
-    private KnotSocketIo socketIO;
-    private ThingApi thingApi;
+    private KnotSocketIo mSocketIO;
+    private ThingApi mThingApi;
 
     private FacadeConnection() {
     }
@@ -64,12 +63,24 @@ public class FacadeConnection {
 
     /**
      * Sets socket io.
+     */
+    public synchronized void createSocketIo(){
+        if(mSocketIO == null){
+            mSocketIO = new KnotSocketIo();
+        }
+    }
+
+    /**
+     * Sets socket io.
      *
-     * @param baseUrl the base url
+     * @param uuidOwner The device identification
+     * @param  tokenOwner the
      * @throws SocketNotConnected the socket not connected
      */
-    public synchronized void setupSocketIO(@NonNull String baseUrl , @NonNull String uuidOwner, @NonNull String tokenOwner) throws SocketNotConnected {
-        socketIO = new KnotSocketIo(baseUrl,uuidOwner,tokenOwner);
+    public synchronized void setupSocketIO(@NonNull String uuidOwner, @NonNull String tokenOwner) {
+        if (mSocketIO != null) {
+            mSocketIO.setupKnotSocketIo(uuidOwner, tokenOwner);
+        }
     }
 
     /**
@@ -81,8 +92,8 @@ public class FacadeConnection {
      * @throws SocketNotConnected the socket not connected
      */
     public synchronized <T extends AbstractThingDevice> void socketIOCreateNewDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected, JSONException {
-        if (socketIO != null && isSocketConnected()) {
-            socketIO.createNewDevice(device, callbackResult);
+        if (mSocketIO != null && isSocketConnected()) {
+            mSocketIO.createNewDevice(device, callbackResult);
         } else {
             throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
         }
@@ -102,8 +113,8 @@ public class FacadeConnection {
      *                            Check the reference on @see <a https://meshblu-socketio.readme.io/docs/unregister</a>
      */
     public <T extends AbstractThingDevice> void socketIODeleteDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected {
-        if (socketIO != null && isSocketConnected()) {
-            socketIO.deleteDevice(device, callbackResult);
+        if (mSocketIO != null && isSocketConnected()) {
+            mSocketIO.deleteDevice(device, callbackResult);
         } else {
             throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
         }
@@ -120,8 +131,8 @@ public class FacadeConnection {
      * @see <a https://meshblu-socketio.readme.io/docs/identity</a>
      */
     public <T extends AbstractThingDevice> void socketIOAuthenticateDevice(final Event<Boolean> callbackResult) throws SocketNotConnected, InvalidParametersException {
-        if (socketIO != null && isSocketConnected()) {
-            socketIO.authenticateDevice(callbackResult);
+        if (mSocketIO != null && isSocketConnected()) {
+            mSocketIO.authenticateDevice(callbackResult);
         } else {
             throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
         }
@@ -140,8 +151,8 @@ public class FacadeConnection {
      */
     //
     public <T extends AbstractThingDevice> void socketIOWhoAmI(final T device, final Event<T> callbackResult) throws JSONException, SocketNotConnected, InvalidParametersException {
-        if (socketIO != null && isSocketConnected()) {
-            socketIO.whoAmI(device, callbackResult);
+        if (mSocketIO != null && isSocketConnected()) {
+            mSocketIO.whoAmI(device, callbackResult);
         } else {
             throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
         }
@@ -159,8 +170,8 @@ public class FacadeConnection {
      *                                    Check the reference on @see <a https://meshblu-socketio.readme.io/docs/update</a>
      */
     public <T extends AbstractThingDevice> void socketIOUpdateDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected, InvalidParametersException {
-        if (socketIO != null && isSocketConnected()) {
-            socketIO.updateDevice(device, callbackResult);
+        if (mSocketIO != null && isSocketConnected()) {
+            mSocketIO.updateDevice(device, callbackResult);
         } else {
             throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
         }
@@ -176,8 +187,8 @@ public class FacadeConnection {
      * @throws JSONException
      */
     public <T extends AbstractThingDevice> void socketIOClaimDevice(final T device, final Event<Boolean> callbackResult) throws SocketNotConnected, InvalidParametersException, JSONException {
-        if (socketIO != null && isSocketConnected()) {
-            socketIO.claimDevice(device, callbackResult);
+        if (mSocketIO != null && isSocketConnected()) {
+            mSocketIO.claimDevice(device, callbackResult);
         } else {
             throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
         }
@@ -193,8 +204,8 @@ public class FacadeConnection {
      * @throws JSONException
      */
     public <T extends AbstractThingDevice> void socketIOGetDevice(final T typeClass, String uuid, final Event<T> callbackResult) throws JSONException, InvalidParametersException, SocketNotConnected {
-        if (socketIO != null && isSocketConnected()) {
-            socketIO.getDevice(typeClass, uuid, callbackResult);
+        if (mSocketIO != null && isSocketConnected()) {
+            mSocketIO.getDevice(typeClass, uuid, callbackResult);
         } else {
             throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
         }
@@ -211,8 +222,8 @@ public class FacadeConnection {
      */
     public <T extends AbstractThingDevice> void socketIOGetDeviceList(final KnotList<T> typeThing, JSONObject
             query, final Event<List<T>> callbackResult) throws KnotException, SocketNotConnected, InvalidParametersException {
-        if (socketIO != null && isSocketConnected()) {
-            socketIO.getDeviceList(typeThing, query, callbackResult);
+        if (mSocketIO != null && isSocketConnected()) {
+            mSocketIO.getDeviceList(typeThing, query, callbackResult);
         } else {
             throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
         }
@@ -229,8 +240,8 @@ public class FacadeConnection {
      * @throws InvalidParametersException
      */
     public <T extends AbstractThingData> void socketIOCreateData(final String uuid, final T data, final Event<T> callbackResult) throws JSONException, InvalidParametersException, SocketNotConnected {
-        if (socketIO != null && isSocketConnected()) {
-            socketIO.createData(uuid, data, callbackResult);
+        if (mSocketIO != null && isSocketConnected()) {
+            mSocketIO.createData(uuid, data, callbackResult);
         } else {
             throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
         }
@@ -248,8 +259,8 @@ public class FacadeConnection {
      * @throws SocketNotConnected
      */
     public <T extends AbstractThingData> void socketIOGetData(final KnotList<T> type, String uuid, String deviceToken, KnotQueryData knotQueryData, final Event<List<T>> callbackResult) throws InvalidParametersException, SocketNotConnected {
-        if (socketIO != null && isSocketConnected()) {
-            socketIO.getData(type, uuid,deviceToken,knotQueryData, callbackResult);
+        if (mSocketIO != null && isSocketConnected()) {
+            mSocketIO.getData(type, uuid,deviceToken,knotQueryData, callbackResult);
         } else {
             throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
         }
@@ -266,8 +277,8 @@ public class FacadeConnection {
      * @see <a> https://meshblu-socketio.readme.io/docs/message </a>
      */
     public <T extends AbstractThingMessage> void socketIOSendMessage(final T message) throws InvalidParametersException, SocketNotConnected, JSONException {
-        if (socketIO != null && isSocketConnected()) {
-            socketIO.sendMessage(message);
+        if (mSocketIO != null && isSocketConnected()) {
+            mSocketIO.sendMessage(message);
         } else {
             throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
         }
@@ -279,8 +290,8 @@ public class FacadeConnection {
      * @param messageEventCallback Callback to receive message
      */
     public <T extends AbstractThingMessage> void socketIOSetCallbackToMessageEvent(final Event<AbstractThingMessage> messageEventCallback, T classOfT) throws SocketNotConnected {
-        if (socketIO != null && isSocketConnected()) {
-            socketIO.setCallbackToMessageEvent(messageEventCallback, classOfT);
+        if (mSocketIO != null && isSocketConnected()) {
+            mSocketIO.setCallbackToMessageEvent(messageEventCallback, classOfT);
         } else {
             throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
         }
@@ -292,8 +303,8 @@ public class FacadeConnection {
      * @param configEventeCallback Callback to receive device information
      */
     public <T extends AbstractThingDevice> void socketIOSetCallbackToConfigEvent(final Event<AbstractThingDevice> configEventeCallback, T classOfT) throws SocketNotConnected {
-        if (socketIO != null && isSocketConnected()) {
-            socketIO.setCallbackToConfigEvent(configEventeCallback, classOfT);
+        if (mSocketIO != null && isSocketConnected()) {
+            mSocketIO.setCallbackToConfigEvent(configEventeCallback, classOfT);
         } else {
             throw new SocketNotConnected("Socket not connected or invalid. Did you call the method setupSocketIO?");
         }
@@ -305,8 +316,8 @@ public class FacadeConnection {
      * @return the boolean
      */
     public synchronized boolean isSocketConnected() {
-        if (socketIO != null) {
-            return socketIO.isSocketConnected();
+        if (mSocketIO != null) {
+            return mSocketIO.isSocketConnected();
         } else {
             return false;
         }
@@ -319,20 +330,20 @@ public class FacadeConnection {
      * @param endPoint endpoint of gateway
      * @throws SocketNotConnected if its not possible to open a socket
      */
-    public void connectSocket(@NonNull String endPoint) throws SocketNotConnected {
+    public void connectSocket(@NonNull String endPoint, Event<Boolean> callbackResult) throws SocketNotConnected {
         disconnectSocket();
-        if (socketIO == null) {
-            socketIO.connect(endPoint);
+        if (mSocketIO != null) {
+            mSocketIO.connect(endPoint,callbackResult);
         }
     }
 
     /**
-     * Disconnect and invalidate the current socket. You must call {@link #connectSocket(String)} to open a valid socket
+     * Disconnect and invalidate the current socket. You must call {@link #connectSocket(String,Event)} to open a valid socket
      * before to do any action on meshblu
      */
     public void disconnectSocket() {
         if (isSocketConnected()) {
-            socketIO.disconnect();
+            mSocketIO.disconnect();
         }
     }
 
@@ -346,7 +357,7 @@ public class FacadeConnection {
      * @param endPoint the end point
      */
     public void setupHttp(@NonNull String endPoint,@NonNull String ownerUuid,@NonNull String ownerToken) {
-        thingApi = new ThingApi(endPoint, ownerUuid, ownerToken);
+        mThingApi = new ThingApi(endPoint, ownerUuid, ownerToken);
     }
 
     /**
@@ -355,10 +366,10 @@ public class FacadeConnection {
      * @throws IllegalStateException
      */
     public void releaseDeviceOwner() throws IllegalStateException {
-        if (thingApi == null) {
+        if (mThingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            thingApi.releaseDeviceOwner();
+            mThingApi.releaseDeviceOwner();
         }
     }
 
@@ -369,10 +380,10 @@ public class FacadeConnection {
      * @throws IllegalStateException
      */
     public boolean isValidDeviceOwner() throws IllegalStateException {
-        if (thingApi == null) {
+        if (mThingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            return thingApi.isValidDeviceOwner();
+            return mThingApi.isValidDeviceOwner();
         }
     }
 
@@ -389,10 +400,10 @@ public class FacadeConnection {
      * @see AbstractThingDevice
      */
     public <T extends AbstractThingDevice> T httpCreateDevice(T device) throws IllegalStateException, KnotException {
-        if (thingApi == null) {
+        if (mThingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            return thingApi.createDevice(device);
+            return mThingApi.createDevice(device);
         }
     }
 
@@ -408,10 +419,10 @@ public class FacadeConnection {
      * @see AbstractThingDevice
      */
     public <T extends AbstractThingDevice> void httpCreateDevice(final T device, final Event<T> callback) throws IllegalStateException {
-        if (thingApi == null) {
+        if (mThingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            thingApi.createDevice(device, callback);
+            mThingApi.createDevice(device, callback);
         }
     }
 
@@ -427,10 +438,10 @@ public class FacadeConnection {
      * @throws KnotException
      */
     public Boolean httpClaimDevice(String device) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
-        if (thingApi == null) {
+        if (mThingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            return thingApi.claimDevice(device);
+            return mThingApi.claimDevice(device);
         }
     }
 
@@ -441,10 +452,10 @@ public class FacadeConnection {
      * @param callback Callback for this method
      */
     public void httpClaimDevice(final String device, final Event<Boolean> callback) throws IllegalStateException {
-        if (thingApi == null) {
+        if (mThingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            thingApi.claimDevice(device, callback);
+            mThingApi.claimDevice(device, callback);
         }
     }
 
@@ -456,10 +467,10 @@ public class FacadeConnection {
      * @throws KnotException
      */
     public <T extends AbstractThingDevice> T httpUpdateDevice(String id, T device) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
-        if (thingApi == null) {
+        if (mThingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            return thingApi.updateDevice(id, device);
+            return mThingApi.updateDevice(id, device);
         }
     }
 
@@ -471,10 +482,10 @@ public class FacadeConnection {
      */
     public <T extends AbstractThingDevice> void httpUpdateDevice(final String id, final T device, final Event<T> callback) throws IllegalStateException {
 
-        if (thingApi == null) {
+        if (mThingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            thingApi.updateDevice(id, device, callback);
+            mThingApi.updateDevice(id, device, callback);
         }
     }
 
@@ -488,10 +499,10 @@ public class FacadeConnection {
      * @throws KnotException
      */
     public boolean httpDeleteDevice(String device) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
-        if (thingApi == null) {
+        if (mThingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            return thingApi.deleteDevice(device);
+            return mThingApi.deleteDevice(device);
         }
     }
 
@@ -502,10 +513,10 @@ public class FacadeConnection {
      * @param callback Callback for this method
      */
     public void httpDeleteDevice(final String device, final Event<Boolean> callback) throws IllegalStateException {
-        if (thingApi == null) {
+        if (mThingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            thingApi.deleteDevice(device, callback);
+            mThingApi.deleteDevice(device, callback);
         }
     }
 
@@ -519,10 +530,10 @@ public class FacadeConnection {
      * @throws KnotException
      */
     public <T extends AbstractThingDevice> T httpWhoAmI(Class<T> clazz) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
-        if (thingApi == null) {
+        if (mThingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            return thingApi.whoAmI(clazz);
+            return mThingApi.whoAmI(clazz);
         }
     }
 
@@ -537,10 +548,10 @@ public class FacadeConnection {
      */
 
     public <T extends AbstractThingDevice> void httpWhoAmI(final Class<T> clazz, final Event<T> callback) throws IllegalStateException {
-        if (thingApi == null) {
+        if (mThingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            thingApi.whoAmI(clazz, callback);
+            mThingApi.whoAmI(clazz, callback);
         }
     }
 
@@ -555,10 +566,10 @@ public class FacadeConnection {
      * @throws KnotException
      */
     public <T extends AbstractThingDevice> T httpGetDevice(String device, Class<T> clazz) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
-        if (thingApi == null) {
+        if (mThingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            return thingApi.getDevice(device, clazz);
+            return mThingApi.getDevice(device, clazz);
         }
     }
 
@@ -573,10 +584,10 @@ public class FacadeConnection {
      * @return an object based on the class parameter
      */
     public <T extends AbstractThingDevice> void httpGetDevice(final String device, final Class<T> clazz, final Event<T> callback) throws IllegalStateException {
-        if (thingApi == null) {
+        if (mThingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            thingApi.getDevice(device, clazz, callback);
+            mThingApi.getDevice(device, clazz, callback);
         }
     }
 
@@ -591,10 +602,10 @@ public class FacadeConnection {
      * @throws KnotException
      */
     public <T extends AbstractThingDevice> T httpGetDeviceGateway(String device, Class<T> clazz) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
-        if (thingApi == null) {
+        if (mThingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            return thingApi.getDeviceGateway(device, clazz);
+            return mThingApi.getDeviceGateway(device, clazz);
         }
     }
 
@@ -609,10 +620,10 @@ public class FacadeConnection {
      * @return an object based on the class parameter
      */
     public <T extends AbstractThingDevice> void httpGetDeviceGateway(final String device, final Class<T> clazz, final Event<T> callback) throws IllegalStateException {
-        if (thingApi == null) {
+        if (mThingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            thingApi.getDeviceGateway(device, clazz, callback);
+            mThingApi.getDeviceGateway(device, clazz, callback);
         }
     }
 
@@ -624,10 +635,10 @@ public class FacadeConnection {
      * @throws KnotException
      */
     public <T extends AbstractThingDevice> List<T> httpGetDeviceList(final KnotList<T> type) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
-        if (thingApi == null) {
+        if (mThingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            return thingApi.getDeviceList(type);
+            return mThingApi.getDeviceList(type);
         }
     }
 
@@ -640,10 +651,10 @@ public class FacadeConnection {
      * @throws KnotException KnotException
      */
     public <T extends AbstractThingDevice> void httpGetDeviceList(final KnotList<T> type, final Event<List<T>> callback) throws IllegalStateException {
-        if (thingApi == null) {
+        if (mThingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            thingApi.getDeviceList(type, callback);
+            mThingApi.getDeviceList(type, callback);
         }
     }
 
@@ -657,10 +668,10 @@ public class FacadeConnection {
      * @throws KnotException
      */
     public <T extends AbstractThingData> boolean httpCreateData(String device, T data) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
-        if (thingApi == null) {
+        if (mThingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            return thingApi.createData(device, data);
+            return mThingApi.createData(device, data);
         }
     }
 
@@ -674,10 +685,10 @@ public class FacadeConnection {
      * @throws KnotException
      */
     public <T extends AbstractThingData> void httpCreateData(final String device, final T data, final Event<Boolean> callback) throws IllegalStateException {
-        if (thingApi == null) {
+        if (mThingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            thingApi.createData(device, data, callback);
+            mThingApi.createData(device, data, callback);
         }
     }
 
@@ -688,10 +699,10 @@ public class FacadeConnection {
      * @throws KnotException
      */
     public <T extends AbstractThingData> List<T> httpGetDataList(String device, KnotQueryData knotQueryData,final KnotList<T> type) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
-        if (thingApi == null) {
+        if (mThingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            return thingApi.getDataList(device, type,knotQueryData);
+            return mThingApi.getDataList(device, type,knotQueryData);
         }
     }
 
@@ -704,10 +715,10 @@ public class FacadeConnection {
      * @return a List with data of the device
      */
     public <T extends AbstractThingData> void httpGetDataList(final String device,KnotQueryData knotQueryData ,final KnotList<T> type, final Event<List<T>> callback) throws IllegalStateException {
-        if (thingApi == null) {
+        if (mThingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            thingApi.getDataList(device, type, knotQueryData,callback);
+            mThingApi.getDataList(device, type, knotQueryData,callback);
         }
     }
 
@@ -721,10 +732,10 @@ public class FacadeConnection {
      * @see AbstractThingMessage
      */
     public <T extends AbstractThingMessage> T httpSendMessage(T message) throws KnotException, IllegalStateException, InvalidDeviceOwnerStateException {
-        if (thingApi == null) {
+        if (mThingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            return thingApi.sendMessage(message);
+            return mThingApi.sendMessage(message);
         }
     }
 
@@ -737,10 +748,10 @@ public class FacadeConnection {
      * @see AbstractThingMessage
      */
     public <T extends AbstractThingMessage> void httpSendMessage(final T message, final Event<T> callback) throws IllegalStateException {
-        if (thingApi == null) {
+        if (mThingApi == null) {
             throw new IllegalStateException("Did you call the method setupHttp?");
         } else {
-            thingApi.sendMessage(message, callback);
+            mThingApi.sendMessage(message, callback);
         }
     }
 
