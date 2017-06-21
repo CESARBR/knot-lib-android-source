@@ -138,6 +138,11 @@ final class KnotSocketIo {
     private static String UUID = "uuid";
 
     /**
+     * Tag that identify uuid of the target device
+     */
+    private static String TARGET = "target";
+
+    /**
      * Tag that identify the token of the device
      */
     private static String TOKEN = "token";
@@ -395,7 +400,7 @@ final class KnotSocketIo {
     protected <T extends AbstractThingDevice> void createNewDevice(final T device, final Event<T> callbackResult) throws SocketNotConnected, JSONException {
         if (isSocketConnected() && device != null && verifyConfiguration()) {
 
-            device.owner = mOwner.getUuid();
+            device.setOwner(mOwner.getUuid());
             String json = mGson.toJson(device);
 
             JSONObject deviceToSend = new JSONObject(json);
@@ -714,21 +719,27 @@ final class KnotSocketIo {
                         List<T> result;
                         try {
                             JsonElement jsonElement = new JsonParser().parse(args[FIRST_EVENT_RECEIVED].toString());
-                            JsonObject jsonObject = jsonElement.getAsJsonObject();
 
-                            if (jsonObject.get(ERROR) != null && !jsonObject.get(ERROR).isJsonNull()) {
-                                callbackResult.onEventError(new KnotException(jsonObject.get(ERROR).toString()));
-                                return;
+                            JsonArray jsonArray;
+                            if (jsonElement.isJsonArray()) {
+                                jsonArray = jsonElement.getAsJsonArray();
+                            } else {
+                                JsonObject jsonObject = jsonElement.getAsJsonObject();
+
+                                if (jsonObject.get(ERROR) != null && !jsonObject.get(ERROR).isJsonNull()) {
+                                    callbackResult.onEventError(new KnotException(jsonObject.get(ERROR).toString()));
+                                    return;
+                                }
+
+                                jsonArray = jsonElement.getAsJsonObject().getAsJsonArray(DEVICES);
                             }
-
-                            JsonArray jsonArray = jsonElement.getAsJsonObject().getAsJsonArray(DEVICES);
 
                             if (jsonArray != null && jsonArray.size() > 0) {
                                 result = mGson.fromJson(jsonArray, typeThing);
                             } else {
                                 result = mGson.fromJson(EMPTY_JSON, typeThing);
                             }
-                            callbackResult.onEventFinish((List<T>) result);
+                            callbackResult.onEventFinish(result);
                         } catch (Exception e) {
                             callbackResult.onEventError(new KnotException(e));
                         }
@@ -800,6 +811,79 @@ final class KnotSocketIo {
                 try {
                     dataToSend.put(UUID, uuid);
                     dataToSend.put(TOKEN, deviceToken);
+
+                    if (knotQueryData.getStartDate() != null) {
+                        dataToSend.put(DATE_START, DateUtils.getTimeStamp(knotQueryData.getStartDate()));
+                    }
+
+                    if (knotQueryData.getFinishDate() != null) {
+                        dataToSend.put(DATE_FINISH, DateUtils.getTimeStamp(knotQueryData.getFinishDate()));
+                    }
+
+                    if (knotQueryData.getLimit() > 0) {
+                        maxNumberOfItem = knotQueryData.getLimit();
+                    }
+
+                    dataToSend.put(LIMIT, maxNumberOfItem);
+
+                } catch (JSONException e) {
+                    callbackResult.onEventError(new KnotException());
+                }
+
+                mSocket.emit(EVENT_GET_DATA, dataToSend, new Ack() {
+                    @Override
+                    public void call(Object... args) {
+                        if (args != null && args.length > 0) {
+                            List<T> result;
+                            JsonElement jsonElement = new JsonParser().parse(args[FIRST_EVENT_RECEIVED].toString());
+                            JsonArray jsonArray = jsonElement.getAsJsonObject().getAsJsonArray(DATA);
+
+                            if (jsonArray != null && jsonArray.size() > 0) {
+                                result = mGson.fromJson(jsonArray.toString(), type);
+                            } else {
+                                result = mGson.fromJson(EMPTY_JSON, type);
+                            }
+
+                            callbackResult.onEventFinish(result);
+                        } else {
+                            callbackResult.onEventError(new KnotException());
+                        }
+                    }
+                });
+
+            } else {
+                throw new InvalidParametersException("Invalid parameters");
+            }
+
+        } else {
+            throw new SocketNotConnected("Socket not ready or connected");
+        }
+
+    }
+
+    /**
+     * Get all data of the specific device
+     *
+     * @param type           List of abstracts objects
+     * @param ownerUuid      UUid of owner device
+     * @param ownerToken     token of owner device
+     * @param targetDeviceUuid    UUid of target device, use '*' for query all devices for the specified owner
+     * @param knotQueryData  Date query
+     * @param callbackResult Callback for this method
+     * @throws InvalidParametersException
+     * @throws SocketNotConnected
+     */
+    public <T extends AbstractThingData> void getData(final KnotList<T> type, String ownerUuid, String ownerToken,String targetDeviceUuid, KnotQueryData knotQueryData, final Event<List<T>> callbackResult) throws InvalidParametersException, SocketNotConnected {
+
+        if (isSocketConnected() && isSocketRegistered() && knotQueryData != null && verifyConfiguration()) {
+            if (ownerUuid != null && callbackResult != null) {
+
+                JSONObject dataToSend = new JSONObject();
+                int maxNumberOfItem = -1;
+                try {
+                    dataToSend.put(UUID, ownerUuid);
+                    dataToSend.put(TOKEN, ownerToken);
+                    dataToSend.put(TARGET, targetDeviceUuid);
 
                     if (knotQueryData.getStartDate() != null) {
                         dataToSend.put(DATE_START, DateUtils.getTimeStamp(knotQueryData.getStartDate()));

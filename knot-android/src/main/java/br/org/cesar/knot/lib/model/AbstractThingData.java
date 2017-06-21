@@ -16,9 +16,17 @@ package br.org.cesar.knot.lib.model;
  */
 public abstract class AbstractThingData {
 
-    public String timestamp;
+    private String timestamp;
 
     public AbstractThingData() {
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
     }
 
     @Override
