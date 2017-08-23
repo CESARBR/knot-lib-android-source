@@ -114,7 +114,7 @@ final class ThingApi {
      */
     public <T extends AbstractThingDevice> T createDevice(T device) throws KnotException {
         final String endPoint = mEndPoint + DEVICE_PATH;
-        device.owner = abstractDeviceOwner.getUuid();
+        device.setOwner(abstractDeviceOwner.getUuid());
         String json = mGson.toJson(device);
         RequestBody body = createRequestBodyWith(json);
         Request request = generateBasicRequestBuild(endPoint).post(body).build();
